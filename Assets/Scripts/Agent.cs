@@ -1,11 +1,9 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-    private FSM fsm;
+    private FSM<Behaivours,Flags> fsm;
 
     [SerializeField] private Transform target;
     [SerializeField] private Transform[] wayPoints;
@@ -16,21 +14,22 @@ public class Agent : MonoBehaviour
 
     private void Start()
     {
-        fsm = new FSM(Enum.GetValues(typeof(Behaivours)).Length, Enum.GetValues(typeof(Flags)).Length);
+        fsm = new FSM<Behaivours, Flags>();
 
-        fsm.AddBehaviour<ChaseState>((int)Behaivours.Chase,
-            onTrikParameters: () => { return new object[] { this.transform, target, speed, explodeDistance, lostDistance }; });
+        fsm.AddBehaviour<ChaseState>(Behaivours.Chase,
+            onTickParameters: () => { return new object[] { this.transform, target, speed, explodeDistance, lostDistance }; });
 
-        fsm.AddBehaviour<PatrolState>((int)Behaivours.Patrol,
-            onTrikParameters: () => { return new object[] { this.transform, wayPoints[0], wayPoints[1], target, speed, chaseDistance }; });
+        fsm.AddBehaviour<PatrolState>(Behaivours.Patrol,
+            onTickParameters: () => { return new object[] { this.transform, wayPoints[0], wayPoints[1], target, speed, chaseDistance }; });
 
-        fsm.AddBehaviour<ExplodeState>((int)Behaivours.Explode,
-            onTrikParameters: () => { return new object[] { this.transform, target, speed }; });
+        fsm.AddBehaviour<ExplodeState>(Behaivours.Explode,
+            onTickParameters: () => { return new object[] { this.transform, target, speed }; });
 
-        fsm.SetTrasnsition((int)Behaivours.Chase, (int)Flags.OnTargetReach, (int)Behaivours.Explode);
-        fsm.SetTrasnsition((int)Behaivours.Chase, (int)Flags.OnTargetLost, (int)Behaivours.Patrol);
+        fsm.SetTrasnsition(Behaivours.Patrol, Flags.OnTargetNear, Behaivours.Chase, () => { Debug.Log("CAGASTE"); });
+        fsm.SetTrasnsition(Behaivours.Chase, Flags.OnTargetReach, Behaivours.Explode, () => { Debug.Log("*Procede a explotar*"); });
+        fsm.SetTrasnsition(Behaivours.Chase, Flags.OnTargetLost, Behaivours.Patrol, () => { Debug.Log("Verga, se fue"); });
 
-        fsm.SetTrasnsition((int)Behaivours.Patrol, (int)Flags.OnTargetNear, (int)Behaivours.Chase);
+        fsm.ForceState(Behaivours.Patrol);
     }
 
 
