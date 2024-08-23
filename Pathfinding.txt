@@ -1,0 +1,16 @@
+Pathfinding : La búsqueda de un camino hacia un punto
+
+Deepfirst : Empieza la búsqueda por el primer vecino
+
+Breadthfirst : Empieza la búsqueda por el ultimo vecino
+
+Dijkstra
+
+Distancia Manhattan : "A cuantas cuadras estoy" - Lean Rod 2024
+
+Distancia : Busca el nodo abierto con menos distancia a recorrer
+
+A* : F= G + H; osea que tiene en cuenta los costos de transitabilidad
+
+
+
