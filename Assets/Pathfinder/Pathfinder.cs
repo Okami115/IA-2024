@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 
-public abstract class Pathfinder<NodeType> where NodeType : INode
+public abstract class Pathfinder<NodeType, Coorninate> 
+    where NodeType : INode<Coorninate>
+    where Coorninate : IEquatable<Coorninate>
 {
-    public List<NodeType> FindPath(NodeType startNode, NodeType destinationNode, ICollection<NodeType> graph)
+    public ICollection<NodeType> FindPath(NodeType startNode, NodeType destinationNode, ICollection<NodeType> graph)
     {
         Dictionary<NodeType, (NodeType Parent, int AcumulativeCost, int Heuristic)> nodes =
             new Dictionary<NodeType, (NodeType Parent, int AcumulativeCost, int Heuristic)>();
@@ -12,28 +15,28 @@ public abstract class Pathfinder<NodeType> where NodeType : INode
             nodes.Add(node, (default, 0, 0));
         }
 
-        List<NodeType> openList = new List<NodeType>();
-        List<NodeType> closedList = new List<NodeType>();
+        List<NodeType> openICollection = new List<NodeType>();
+        List<NodeType> closedICollection = new List<NodeType>();
 
-        openList.Add(startNode);
+        openICollection.Add(startNode);
 
-        while (openList.Count > 0)
+        while (openICollection.Count > 0)
         {
-            NodeType currentNode = openList[0];
+            NodeType currentNode = openICollection[0];
             int currentIndex = 0;
 
-            for (int i = 1; i < openList.Count; i++)
+            for (int i = 1; i < openICollection.Count; i++)
             {
-                if (nodes[openList[i]].AcumulativeCost + nodes[openList[i]].Heuristic <
+                if (nodes[openICollection[i]].AcumulativeCost + nodes[openICollection[i]].Heuristic <
                 nodes[currentNode].AcumulativeCost + nodes[currentNode].Heuristic)
                 {
-                    currentNode = openList[i];
+                    currentNode = openICollection[i];
                     currentIndex = i;
                 }
             }
 
-            openList.RemoveAt(currentIndex);
-            closedList.Add(currentNode);
+            openICollection.RemoveAt(currentIndex);
+            closedICollection.Add(currentNode);
 
             if (NodesEquals(currentNode, destinationNode))
             {
@@ -44,7 +47,7 @@ public abstract class Pathfinder<NodeType> where NodeType : INode
             {
                 if (!nodes.ContainsKey(neighbor) ||
                 IsBloqued(neighbor) ||
-                closedList.Contains(neighbor))
+                closedICollection.Contains(neighbor))
                 {
                     continue;
                 }
@@ -53,13 +56,13 @@ public abstract class Pathfinder<NodeType> where NodeType : INode
                 tentativeNewAcumulatedCost += nodes[currentNode].AcumulativeCost;
                 tentativeNewAcumulatedCost += MoveToNeighborCost(currentNode, neighbor);
 
-                if (!openList.Contains(neighbor) || tentativeNewAcumulatedCost < nodes[currentNode].AcumulativeCost)
+                if (!openICollection.Contains(neighbor) || tentativeNewAcumulatedCost < nodes[currentNode].AcumulativeCost)
                 {
                     nodes[neighbor] = (currentNode, tentativeNewAcumulatedCost, Distance(neighbor, destinationNode));
 
-                    if (!openList.Contains(neighbor))
+                    if (!openICollection.Contains(neighbor))
                     {
-                        openList.Add(neighbor);
+                        openICollection.Add(neighbor);
                     }
                 }
             }
@@ -67,7 +70,7 @@ public abstract class Pathfinder<NodeType> where NodeType : INode
 
         return null;
 
-        List<NodeType> GeneratePath(NodeType startNode, NodeType goalNode)
+        ICollection<NodeType> GeneratePath(NodeType startNode, NodeType goalNode)
         {
             List<NodeType> path = new List<NodeType>();
             NodeType currentNode = goalNode;

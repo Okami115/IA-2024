@@ -5,14 +5,14 @@ using UnityEngine;
 
 public struct behaivioursAction
 {
-    private Dictionary<int, List<Action>> mainThreadsBehaiviours;
+    private Dictionary<int, ICollection<Action>> mainThreadsBehaiviours;
     private ConcurrentDictionary<int, ConcurrentBag<Action>> multiThreadsBehaiviours;
     private Action transitionBehaiviours;
 
     public void AddMainThreadBehaviours(int executionOrder, Action behaviour)
     {
         if (mainThreadsBehaiviours == null)
-            mainThreadsBehaiviours = new Dictionary<int, List<Action>>();
+            mainThreadsBehaiviours = new Dictionary<int, ICollection<Action>>();
 
         if (!mainThreadsBehaiviours.ContainsKey(executionOrder))
             mainThreadsBehaiviours.Add(executionOrder, new List<Action>());
@@ -36,7 +36,7 @@ public struct behaivioursAction
         transitionBehaiviours = behaviours;
     }
 
-    public Dictionary<int, List<Action>> MainThreadBahaviours => mainThreadsBehaiviours;
+    public Dictionary<int, ICollection<Action>> MainThreadBahaviours => mainThreadsBehaiviours;
     public ConcurrentDictionary<int, ConcurrentBag<Action>> MultiThreadBehaviours => multiThreadsBehaiviours;
     public Action TransitionBehaviours => transitionBehaiviours;
 }

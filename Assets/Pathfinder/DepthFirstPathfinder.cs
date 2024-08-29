@@ -1,40 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-public class DepthFirstPathfinder<NodeType> : Pathfinder<NodeType> where NodeType : INode
+public class DepthFirstPathfinder<Node, Coorninate> : Pathfinder<Node, Coorninate> 
+    where Node : INode<Coorninate>
+    where Coorninate : IEquatable<Coorninate>
 {
-    protected override int Distance(NodeType A, NodeType B)
+    protected override int Distance(Node A, Node B)
     {
         return 0;
     }
 
-    protected override ICollection<NodeType> GetNeighbors(NodeType node)
+    protected override ICollection<Node> GetNeighbors(Node node)
     {
-        return (ICollection<NodeType>)node.GetNeighbors();
+        List<Node> neighbors = new List<Node>();
+
+        foreach (Node neighbor in node.GetNeighbors())
+        {
+            neighbors.Add(neighbor);
+        }
+
+        return neighbors;
     }
 
-    protected override bool IsBloqued(NodeType node)
+    protected override bool IsBloqued(Node node)
     {
-        return node.IsBloqued();
+        return node.GetIsBloqued();
     }
 
-    protected override int MoveToNeighborCost(NodeType A, NodeType b)
+    protected override int MoveToNeighborCost(Node A, Node b)
     {
         return 0;
     }
 
-    protected override bool NodesEquals(NodeType A, NodeType B)
+    protected override bool NodesEquals(Node A, Node B)
     {
-        bool isEquals = true;
-
-        if(A.GetType() != B.GetType())
-            isEquals = false;
-
-        if(A.IsBloqued() != B.IsBloqued())
-            isEquals = false;
-
-        if(A.GetHashCode() != B.GetHashCode())
-            isEquals = false;
-
-        return isEquals;
+        return A.Equals(B);
     }
 }
