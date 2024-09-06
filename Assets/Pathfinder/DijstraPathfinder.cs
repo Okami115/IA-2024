@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 public class DijstraPathfinder<Node, Coorninate> : Pathfinder<Node, Coorninate>

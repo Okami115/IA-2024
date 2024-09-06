@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 public class BreadthPathfinder<Node, Coorninate> : Pathfinder<Node, Coorninate> 

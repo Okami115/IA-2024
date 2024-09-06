@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 public class Node<Coordinate> : INode<Coordinate>, IEquatable<Node<Coordinate>>

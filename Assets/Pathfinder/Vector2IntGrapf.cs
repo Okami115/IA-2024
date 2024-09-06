@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using UnityEngine;
 
-public class Vector2IntGrapf<NodeType> 
+public class Vector2IntGrapf<NodeType>
     where NodeType : INode<UnityEngine.Vector2Int>, INode, new()
-{ 
+{
     public List<NodeType> nodes = new List<NodeType>();
 
     private TypeOfPathFinder typeOfPathFinder;
+    private int offset;
 
-    public Vector2IntGrapf(int x, int y, TypeOfPathFinder typeOfPathFinder) 
+    public Vector2IntGrapf(int x, int y, int offset, TypeOfPathFinder typeOfPathFinder)
     {
         this.typeOfPathFinder = typeOfPathFinder;
+        this.offset = offset;
 
         for (int i = 0; i < x; i++)
         {
@@ -43,7 +44,7 @@ public class Vector2IntGrapf<NodeType>
                 Math.Abs(neighbor.GetCoordinate().x - currentNode.GetCoordinate().x) == 1)
                 currentNode.AddNeighbor(neighbor);
 
-            if(typeOfPathFinder == TypeOfPathFinder.DijstraPathfinder || typeOfPathFinder == TypeOfPathFinder.AStarPathfinder)
+            if (typeOfPathFinder == TypeOfPathFinder.DijstraPathfinder || typeOfPathFinder == TypeOfPathFinder.AStarPathfinder)
             {
                 if (Math.Abs(neighbor.GetCoordinate().y - currentNode.GetCoordinate().y) == 1 && Math.Abs(neighbor.GetCoordinate().x - currentNode.GetCoordinate().x) == 1)
                     currentNode.AddNeighbor(neighbor);

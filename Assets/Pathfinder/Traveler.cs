@@ -1,9 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
 
 public class Traveler : MonoBehaviour
 {
@@ -11,6 +8,9 @@ public class Traveler : MonoBehaviour
 
     private Node<Vector2Int> startNode;
     private Node<Vector2Int> destinationNode;
+    private Node<Vector2Int> currentNode;
+
+    private bool isRunning = false;
 
     private Pathfinder<Node<Vector2Int>, Vector2Int> pathfinder;
     private ICollection<Node<Vector2Int>> path;
@@ -25,11 +25,12 @@ public class Traveler : MonoBehaviour
         grapfView.ChangePathFinder -= StartPathFinder;
     }
 
-    void StartPathFinder()
+    void StartPathFinder(int startIndexNode, int endIndexNode)
     {
+        isRunning = true;
         StopAllCoroutines();
-        startNode = grapfView.grapf.nodes[UnityEngine.Random.Range(0, grapfView.grapf.nodes.Count)];
-        destinationNode = grapfView.grapf.nodes[UnityEngine.Random.Range(0, grapfView.grapf.nodes.Count)];
+        startNode = grapfView.grapf.nodes[startIndexNode];
+        destinationNode = grapfView.mines[endIndexNode];
 
         switch (grapfView.GetTypeOfPathFinder)
         {
@@ -63,14 +64,15 @@ public class Traveler : MonoBehaviour
 
         foreach (Node<Vector2Int> node in path)
         {
-            transform.position = new Vector3(node.GetCoordinate().x, node.GetCoordinate().y);
+            currentNode = node;
+            transform.position = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
             yield return new WaitForSeconds(1.0f);
         }
     }
 
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying)
+        if (!Application.isPlaying || !isRunning)
             return;
 
 
@@ -85,7 +87,7 @@ public class Traveler : MonoBehaviour
             else
                 Gizmos.color = Color.white;
 
-            Vector3 nodeCordinates = new Vector3(node.GetCoordinate().x, node.GetCoordinate().y);
+            Vector3 nodeCordinates = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
             Gizmos.DrawWireSphere(nodeCordinates, 0.2f);
         }
     }
