@@ -52,11 +52,29 @@ public class GrapfView : MonoBehaviour
         grapf = new Vector2IntGrapf<Node<Vector2Int>>(int.Parse(inputX.text), int.Parse(inputY.text), 
             int.Parse(Offset.text), typeOfPathFinder);
 
+
+        Vector3 newCamPos = new Vector3(int.Parse(inputX.text) * int.Parse(Offset.text) / 2, 
+            int.Parse(inputY.text) * int.Parse(Offset.text) / 2, 
+            (int.Parse(Offset.text) * ((int.Parse(inputY.text) + int.Parse(inputX.text)) / 2)) * -1);
+
+        Camera.main.transform.position = newCamPos;
+
+
+        urbanCenter = grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)];
+
         for (int i = 0; i < int.Parse(minesCount.text); i++)
         {
-            mines.Add(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)]);
-        }
+            bool isUsed = true;
+            Node<Vector2Int> tempNode = new Node<Vector2Int>();
+            while (isUsed)
+            {
+                tempNode = grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)];
 
+                if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
+                    isUsed = false;
+            }
+            mines.Add(tempNode);
+        }
 
         ChangePathFinder?.Invoke(UnityEngine.Random.Range(0, grapf.nodes.Count), UnityEngine.Random.Range(0, mines.Count));
         isRunning = true;

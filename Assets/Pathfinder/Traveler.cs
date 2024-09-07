@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Traveler : MonoBehaviour
@@ -9,6 +11,9 @@ public class Traveler : MonoBehaviour
     private Node<Vector2Int> startNode;
     private Node<Vector2Int> destinationNode;
     private Node<Vector2Int> currentNode;
+
+    public int gold = 0;
+    public float timeToExtract;
 
     private bool isRunning = false;
 
@@ -29,7 +34,7 @@ public class Traveler : MonoBehaviour
     {
         isRunning = true;
         StopAllCoroutines();
-        startNode = grapfView.grapf.nodes[startIndexNode];
+        startNode = grapfView.urbanCenter;
         destinationNode = grapfView.mines[endIndexNode];
 
         switch (grapfView.GetTypeOfPathFinder)
@@ -55,6 +60,8 @@ public class Traveler : MonoBehaviour
         }
 
         StartCoroutine(Move(path));
+
+
     }
 
     public IEnumerator Move(ICollection<Node<Vector2Int>> path) 
@@ -68,6 +75,36 @@ public class Traveler : MonoBehaviour
             transform.position = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
             yield return new WaitForSeconds(1.0f);
         }
+
+        StartCoroutine(Extract());
+    }
+
+    public IEnumerator Extract()
+    {
+        while (gold < 15)
+        {
+            gold++;
+            yield return new WaitForSeconds(timeToExtract);
+        }
+
+        StartCoroutine(ComeBack(path));
+    }
+
+    public IEnumerator ComeBack(ICollection<Node<Vector2Int>> path)
+    {
+        if (path == null)
+            yield return null;
+
+        List<Node<Vector2Int>> pathRerverse = path.ToList();
+        pathRerverse.Reverse();
+
+        foreach (Node<Vector2Int> node in pathRerverse)
+        {
+            currentNode = node;
+            transform.position = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
+            yield return new WaitForSeconds(1.0f);
+        }
+        transform.position = new Vector3(grapfView.OffsetPublic * grapfView.urbanCenter.GetCoordinate().x, grapfView.OffsetPublic * grapfView.urbanCenter.GetCoordinate().y);
     }
 
     private void OnDrawGizmos()
@@ -84,6 +121,8 @@ public class Traveler : MonoBehaviour
                 Gizmos.color = Color.black;
             else if(path.Contains(node))
                 Gizmos.color = Color.yellow;
+            else if(grapfView.mines.Contains(node) && !node.Equals(destinationNode))
+                Gizmos.color = Color.green;
             else
                 Gizmos.color = Color.white;
 
