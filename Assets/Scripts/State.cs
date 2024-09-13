@@ -1,67 +1,28 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using UnityEngine;
-
-public struct behaivioursAction
-{
-    private Dictionary<int, ICollection<Action>> mainThreadsBehaiviours;
-    private ConcurrentDictionary<int, ConcurrentBag<Action>> multiThreadsBehaiviours;
-    private Action transitionBehaiviours;
-
-    public void AddMainThreadBehaviours(int executionOrder, Action behaviour)
-    {
-        if (mainThreadsBehaiviours == null)
-            mainThreadsBehaiviours = new Dictionary<int, ICollection<Action>>();
-
-        if (!mainThreadsBehaiviours.ContainsKey(executionOrder))
-            mainThreadsBehaiviours.Add(executionOrder, new List<Action>());
-
-        mainThreadsBehaiviours[executionOrder].Add(behaviour);
-    }
-
-    public void AddMultiThreadsBehaviours(int executionOrder, Action behaviour)
-    {
-        if (multiThreadsBehaiviours == null)
-            multiThreadsBehaiviours = new ConcurrentDictionary<int, ConcurrentBag<Action>>();
-
-        if (!multiThreadsBehaiviours.ContainsKey(executionOrder))
-            multiThreadsBehaiviours.TryAdd(executionOrder, new ConcurrentBag<Action>());
-
-        multiThreadsBehaiviours[executionOrder].Add(behaviour);
-    }
-
-    public void SetTransition(Action behaviours)
-    {
-        transitionBehaiviours = behaviours;
-    }
-
-    public Dictionary<int, ICollection<Action>> MainThreadBahaviours => mainThreadsBehaiviours;
-    public ConcurrentDictionary<int, ConcurrentBag<Action>> MultiThreadBehaviours => multiThreadsBehaiviours;
-    public Action TransitionBehaviours => transitionBehaiviours;
-}
+using BehaivioursActions;
 
 public abstract class State
 {
     public Action<Enum> OnFlag;
-    public abstract behaivioursAction GetOnEnterBehaviours(params object[] parameters);
-    public abstract behaivioursAction GetOnExitBehaviours(params object[] parameters);
-    public abstract behaivioursAction GetTickBehaviours(params object[] parameters);
+    public abstract BehaivioursAction GetOnEnterBehaviours(params object[] parameters);
+    public abstract BehaivioursAction GetOnExitBehaviours(params object[] parameters);
+    public abstract BehaivioursAction GetTickBehaviours(params object[] parameters);
 }
 
 public sealed class ChaseState : State
 {
-    public override behaivioursAction GetOnEnterBehaviours(params object[] parameters)
+    public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         return default;
     }
 
-    public override behaivioursAction GetOnExitBehaviours(params object[] parameters)
+    public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
     {
         return default;
     }
 
-    public override behaivioursAction GetTickBehaviours(params object[] parameters)
+    public override BehaivioursAction GetTickBehaviours(params object[] parameters)
     {
         Transform OwnerTransform = parameters[0] as Transform;
         Transform TargetTransform = parameters[1] as Transform;
@@ -69,7 +30,7 @@ public sealed class ChaseState : State
         float explodeDistance = Convert.ToSingle(parameters[3]);
         float lostDistance = Convert.ToSingle(parameters[4]);
 
-        behaivioursAction result = new behaivioursAction();
+        BehaivioursAction result = new BehaivioursAction();
 
         result.AddMainThreadBehaviours(0, () =>
         {
@@ -102,17 +63,17 @@ public sealed class PatrolState : State
 {
     private Transform actualTargete;
 
-    public override behaivioursAction GetOnEnterBehaviours(params object[] parameters)
+    public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         return default;
     }
 
-    public override behaivioursAction GetOnExitBehaviours(params object[] parameters)
+    public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
     {
         return default;
     }
 
-    public override behaivioursAction GetTickBehaviours(params object[] parameters)
+    public override BehaivioursAction GetTickBehaviours(params object[] parameters)
     {
         Transform ownerTransform = parameters[0] as Transform;
         Transform wayPoint1 = parameters[1] as Transform;
@@ -121,7 +82,7 @@ public sealed class PatrolState : State
         float speed = Convert.ToSingle(parameters[4]);
         float cheseDistance = Convert.ToSingle(parameters[5]);
 
-        behaivioursAction result = new behaivioursAction();
+        BehaivioursAction result = new BehaivioursAction();
 
         result.AddMainThreadBehaviours(1, () =>
         {
@@ -162,23 +123,23 @@ public sealed class PatrolState : State
 
 public sealed class ExplodeState : State
 {
-    public override behaivioursAction GetOnEnterBehaviours(params object[] parameters)
+    public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         return default;
     }
 
-    public override behaivioursAction GetOnExitBehaviours(params object[] parameters)
+    public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
     {
         return default;
     }
 
-    public override behaivioursAction GetTickBehaviours(params object[] parameters)
+    public override BehaivioursAction GetTickBehaviours(params object[] parameters)
     {
         Transform OwnerTransform = parameters[0] as Transform;
         Transform TargetTransform = parameters[1] as Transform;
         float speed = Convert.ToSingle(parameters[2]);
 
-        behaivioursAction result = new behaivioursAction();
+        BehaivioursAction result = new BehaivioursAction();
         result.AddMultiThreadsBehaviours(0, () =>
         {
             Debug.Log("BOOM!");

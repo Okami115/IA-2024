@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BehaivioursActions;
 
 public class FSM<EnumState, EnumFlag>
     where EnumState : Enum
@@ -16,13 +17,13 @@ public class FSM<EnumState, EnumFlag>
 
     private (int destinationState, Action onTransition)[,] transition;
 
-    public behaivioursAction GetCurrentStateOnEnterBehaviours => behaviour[currentState].
+    public BehaivioursAction GetCurrentStateOnEnterBehaviours => behaviour[currentState].
         GetOnEnterBehaviours(behaviourOnEnterParameters[currentState]?.Invoke());
 
-    public behaivioursAction GetCurrentStateTickBehaviours => behaviour[currentState].
+    public BehaivioursAction GetCurrentStateTickBehaviours => behaviour[currentState].
         GetTickBehaviours(behaviourTickParameters[currentState]?.Invoke());
 
-    public behaivioursAction GetCurrentStateOnExitBehaviours => behaviour[currentState].
+    public BehaivioursAction GetCurrentStateOnExitBehaviours => behaviour[currentState].
         GetOnExitBehaviours(behaviourOnExitParameters[currentState]?.Invoke());
 
     public FSM()
@@ -93,9 +94,9 @@ public class FSM<EnumState, EnumFlag>
         }
     }
 
-    public void ExecuteBehaviours(behaivioursAction behaivioursAction)
+    public void ExecuteBehaviours(BehaivioursAction behaivioursAction)
     {
-        if (behaivioursAction.Equals(default(behaivioursAction)))
+        if (behaivioursAction.Equals(default(BehaivioursAction)))
             return;
 
         int executionOrder = 0;
@@ -131,7 +132,6 @@ public class FSM<EnumState, EnumFlag>
                     behaivioursAction.MainThreadBahaviours.Remove(executionOrder);
                 }
             }
-
 
             multithreadeableBehaviours.Wait();
 

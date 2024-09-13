@@ -1,3 +1,5 @@
+using ECS;
+
 public class VelocityComponent : ECSComponent
 {
     public float velocity;

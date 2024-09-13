@@ -1,3 +1,5 @@
+using ECS;
+
 public class PositionComponent : ECSComponent
 {
     public float X;

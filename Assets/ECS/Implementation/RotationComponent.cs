@@ -1,4 +1,6 @@
-﻿public class RotationComponent : ECSComponent
+﻿using ECS;
+
+public class RotationComponent : ECSComponent
 {
     public float X;
     public float Y;
