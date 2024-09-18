@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 
+[Serializable]
 public class Node<Coordinate> : INode<Coordinate>, IEquatable<Node<Coordinate>>
     where Coordinate : IEquatable<Coordinate>
 {
-    private Coordinate coordinate;
+    public Coordinate coordinate;
     private bool bloqued;
     private ICollection<INode<Coordinate>> neighbors = new List<INode<Coordinate>>();
     private Dictionary<INode, int> costToNeighbors = new Dictionary<INode, int>();

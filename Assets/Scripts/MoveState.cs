@@ -8,7 +8,6 @@ public sealed class MoveState : State
     private Pathfinder<Node<Vector2Int>, Vector2Int> pathfinder;
     private List<Node<Vector2Int>> path = new List<Node<Vector2Int>>();
 
-    Node<Vector2Int> currentNode;
     Node<Vector2Int> destinationNode;
 
     public GrapfView grapfView;
@@ -17,7 +16,7 @@ public sealed class MoveState : State
     {
         BehaivioursAction result = new BehaivioursAction();
 
-        currentNode = parameters[0] as Node<Vector2Int>;
+        Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
         destinationNode = parameters[1] as Node<Vector2Int>;
         grapfView = parameters[2] as GrapfView;
 
@@ -41,6 +40,7 @@ public sealed class MoveState : State
         Transform transform = parameters[0] as Transform;
         int OffsetPublic = Convert.ToInt32(parameters[1]);
         float speed = Convert.ToSingle(parameters[2]);
+        Traveler traveler = parameters[3] as Traveler;
 
         BehaivioursAction result = new BehaivioursAction();
 
@@ -53,12 +53,14 @@ public sealed class MoveState : State
 
                 transform.position += (aux - transform.position).normalized * speed * Time.deltaTime;
 
-                float testX = aux.x - transform.position.x;
-                float testY = aux.y - transform.position.y;
-                float testZ = aux.z - transform.position.z;
+                float dist = Vector3.Distance(transform.position, aux);
+                float minDist = 0.001f;
 
-                if ((testX + testY / 2) < (Mathf.Epsilon * 10))
+                if (dist < minDist)
+                {
+                    traveler.currentNode = path[0];
                     path.Remove(path[0]);
+                }
             }
         });
 

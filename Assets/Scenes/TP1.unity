@@ -2293,6 +2293,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1778729984}
     - target: {fileID: 5680024887706188184, guid: 207db0787cc61c046981e98728f9ab7a, type: 3}
+      propertyPath: minningSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5680024887706188184, guid: 207db0787cc61c046981e98728f9ab7a, type: 3}
       propertyPath: timeToExtract
       value: 10
       objectReference: {fileID: 0}

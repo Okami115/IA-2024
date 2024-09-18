@@ -8,14 +8,12 @@ public class Traveler : MonoBehaviour
 {
     public GrapfView grapfView;
 
-    private Node<Vector2Int> destinationNode;
-    private Node<Vector2Int> currentNode;
+    [SerializeField] private Node<Vector2Int> destinationNode;
+    [SerializeField] public Node<Vector2Int> currentNode;
 
-    public float? gold = 0;
+    [SerializeField] private Inventory inventory;
 
-    Func<int> Gold;
-
-    public float timeToExtract;
+    public float minningSpeed;
     public float speed;
 
     private bool isRunning = false;
@@ -39,13 +37,15 @@ public class Traveler : MonoBehaviour
         isRunning = true;
         StopAllCoroutines();
         currentNode = grapfView.urbanCenter;
-        destinationNode = grapfView.mines[endIndexNode];
+        destinationNode = grapfView.mines[endIndexNode].currentNode;
 
         fsm.AddBehaviour<MoveState>(Behaivours.Move,
-            onEnterParameters: () => { return new object[] { currentNode, destinationNode, grapfView }; }
-            , onTickParameters: () => { return new object[] { transform, grapfView.OffsetPublic, speed }; });
+            onEnterParameters: () => { return new object[] { currentNode, destinationNode, grapfView }; },
+            onTickParameters: () => { return new object[] { transform, grapfView.OffsetPublic, speed, this }; });
 
-        fsm.AddBehaviour<MiningState>(Behaivours.Mining, onTickParameters: () => { return new object[] { gold, timeToExtract, grapfView.minesWithGold[destinationNode] }; });
+        fsm.AddBehaviour<MiningState>(Behaivours.Mining,
+            onEnterParameters: () => { return new object[] { currentNode, inventory, grapfView.mines }; },
+            onTickParameters: () => { return new object[] { minningSpeed }; });
 
         fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Mining, () => { Debug.Log("*Procede a minar*"); });
 
@@ -59,35 +59,6 @@ public class Traveler : MonoBehaviour
     private void Update()
     {
         fsm.Tick();
-    }
-
-    public IEnumerator Extract()
-    {
-        while (gold < 15)
-        {
-            gold++;
-            grapfView.minesWithGold[currentNode]--;
-            yield return new WaitForSeconds(timeToExtract);
-        }
-
-        grapfView.minesWithGold.Remove(currentNode);
-    }
-
-    public IEnumerator ComeBack(ICollection<Node<Vector2Int>> path)
-    {
-        if (path == null)
-            yield return null;
-
-        List<Node<Vector2Int>> pathRerverse = path.ToList();
-        pathRerverse.Reverse();
-
-        foreach (Node<Vector2Int> node in pathRerverse)
-        {
-            currentNode = node;
-            transform.position = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
-            yield return new WaitForSeconds(1.0f);
-        }
-        transform.position = new Vector3(grapfView.OffsetPublic * grapfView.urbanCenter.GetCoordinate().x, grapfView.OffsetPublic * grapfView.urbanCenter.GetCoordinate().y);
     }
 
     private void OnDrawGizmos()
@@ -114,5 +85,18 @@ public class Traveler : MonoBehaviour
             Gizmos.DrawWireSphere(nodeCordinates, 0.2f);
         }
          */
+    }
+}
+
+[Serializable]
+public class Inventory
+{
+    public int food = 0;
+    public float gold = 0;
+
+    Inventory(int food = 0, float gold = 0)
+    {
+        this.food = food;
+        this.gold = gold;
     }
 }

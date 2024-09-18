@@ -1,14 +1,34 @@
 ﻿using BehaivioursActions;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public sealed class MiningState : State
 {
-    private Transform actualTargete;
-
+    private Mine<Vector2Int> mine;
+    private Inventory inventory;
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
-        return default;
+        Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
+        inventory = parameters[1] as Inventory;
+        List<Mine<Vector2Int>> mines = parameters[2] as List<Mine<Vector2Int>>;
+
+        BehaivioursAction result = new BehaivioursAction();
+        result.AddMainThreadBehaviours(0, () =>
+        { 
+            for (int i = 0; i < mines.Count; i++)
+            {
+                if (mines[i].currentNode == currentNode)
+                {
+                    mine = mines[i];
+                    break;
+                }
+            }
+
+        });
+
+        return result;
     }
 
     public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
@@ -18,29 +38,24 @@ public sealed class MiningState : State
 
     public override BehaivioursAction GetTickBehaviours(params object[] parameters)
     {
-        float? gold = parameters[0] as float?;
-        float speedToMine = Convert.ToSingle(parameters[1]);
-        float goldInTheMine = Convert.ToSingle(parameters[2]);
+        float minningSpeed = Convert.ToSingle(parameters[0]);
 
         BehaivioursAction result = new BehaivioursAction();
 
-        result.AddMainThreadBehaviours(0, () =>
+        result.AddMainThreadBehaviours(0, () => 
         {
-            gold += speedToMine * Time.deltaTime;
-            goldInTheMine -= speedToMine * Time.deltaTime;
-
-            Debug.Log($"Current Gold :: {gold}, Restant Gold :: {goldInTheMine}");
+            if(mine.currentGold > 0)
+            {
+                inventory.gold += Time.deltaTime * minningSpeed;
+                mine.currentGold -= Time.deltaTime * minningSpeed;
+            }                
         });
 
         result.SetTransition(() =>
         {
-            if(goldInTheMine <= 0)
+            if(inventory.gold >= 15)
             {
-                Debug.Log("No Gold");
-            }
-            else if(gold >= 15)
-            {
-                Debug.Log("Full Gold");
+                Debug.Log("Full of Gold");
             }
         });
         return result;

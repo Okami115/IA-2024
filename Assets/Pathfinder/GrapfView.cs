@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,10 +17,7 @@ public class GrapfView : MonoBehaviour
 {
     public Vector2IntGrapf<Node<Vector2Int>> grapf;
 
-    public List<Node<Vector2Int>> mines;
-
-
-    public Dictionary<Node<Vector2Int>, int> minesWithGold = new Dictionary<Node<Vector2Int>, int>();
+    public List<Mine<Vector2Int>> mines;
 
     public Node<Vector2Int> urbanCenter;
 
@@ -44,7 +42,7 @@ public class GrapfView : MonoBehaviour
     private void Start()
     {
         play.onClick.AddListener(OnPlaySimulation);
-        mines = new List<Node<Vector2Int>>();
+        mines = new List<Mine<Vector2Int>>();
     }
 
     private void OnPlaySimulation()
@@ -68,18 +66,17 @@ public class GrapfView : MonoBehaviour
         for (int i = 0; i < int.Parse(minesCount.text); i++)
         {
             bool isUsed = true;
-            Node<Vector2Int> tempNode = new Node<Vector2Int>();
+            Mine<Vector2Int> tempNode = new Mine<Vector2Int>(new Node<Vector2Int>(), 0);
 
             while (isUsed)
             {
-                tempNode = grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)];
+                tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 15);
 
                 if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
                     isUsed = false;
             }
 
             mines.Add(tempNode);
-            minesWithGold.Add(tempNode, 15);
         }
 
         ChangePathFinder?.Invoke(UnityEngine.Random.Range(0, grapf.nodes.Count), UnityEngine.Random.Range(0, mines.Count));
@@ -104,5 +101,18 @@ public class GrapfView : MonoBehaviour
                 Gizmos.DrawLine(nodeCordinates, new Vector3(OffsetPublic * neighborCordinates.x, OffsetPublic * neighborCordinates.y));
             }
         }
+    }
+}
+
+public class Mine<Coordinates>
+    where Coordinates : IEquatable<Coordinates>
+{
+    public Node<Coordinates> currentNode;
+    public float     currentGold;
+
+    public Mine(Node<Coordinates> startNode, float startGold)
+    {
+        currentNode = startNode;
+        currentGold = startGold;
     }
 }
