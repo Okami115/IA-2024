@@ -8,21 +8,25 @@ public class Traveler : MonoBehaviour
 {
     public GrapfView grapfView;
 
-    private Node<Vector2Int> startNode;
     private Node<Vector2Int> destinationNode;
     private Node<Vector2Int> currentNode;
 
-    public int gold = 0;
+    public float? gold = 0;
+
+    Func<int> Gold;
+
     public float timeToExtract;
+    public float speed;
 
     private bool isRunning = false;
 
-    private Pathfinder<Node<Vector2Int>, Vector2Int> pathfinder;
-    private ICollection<Node<Vector2Int>> path;
+    private FSM<Behaivours, Flags> fsm;
 
     private void OnEnable()
     {
         grapfView.ChangePathFinder += StartPathFinder;
+
+        fsm = new FSM<Behaivours, Flags>();
     }
 
     private void OnDestroy()
@@ -34,49 +38,27 @@ public class Traveler : MonoBehaviour
     {
         isRunning = true;
         StopAllCoroutines();
-        startNode = grapfView.urbanCenter;
+        currentNode = grapfView.urbanCenter;
         destinationNode = grapfView.mines[endIndexNode];
 
-        switch (grapfView.GetTypeOfPathFinder)
-        {
-            case TypeOfPathFinder.BreadthPathfinder:
-                pathfinder = new BreadthPathfinder<Node<Vector2Int>, Vector2Int>();
-                path = pathfinder.FindPath(startNode, destinationNode, grapfView.grapf.nodes);
-                break;
-            case TypeOfPathFinder.DepthFirstPathfinder:
-                pathfinder = new DepthFirstPathfinder<Node<Vector2Int>, Vector2Int>();
-                path = pathfinder.FindPath(startNode, destinationNode, grapfView.grapf.nodes);
-                break;
-            case TypeOfPathFinder.DijstraPathfinder:
-                pathfinder = new DijstraPathfinder<Node<Vector2Int>, Vector2Int>();
-                path = pathfinder.FindPath(startNode, destinationNode, grapfView.grapf.nodes);
-                break;
-            case TypeOfPathFinder.AStarPathfinder:
-                pathfinder = new AStarPathfinder<Node<Vector2Int>, Vector2Int>();
-                path = pathfinder.FindPath(startNode, destinationNode, grapfView.grapf.nodes);
-                break;
-            default:
-                break;
-        }
+        fsm.AddBehaviour<MoveState>(Behaivours.Move,
+            onEnterParameters: () => { return new object[] { currentNode, destinationNode, grapfView }; }
+            , onTickParameters: () => { return new object[] { transform, grapfView.OffsetPublic, speed }; });
 
-        StartCoroutine(Move(path));
+        fsm.AddBehaviour<MiningState>(Behaivours.Mining, onTickParameters: () => { return new object[] { gold, timeToExtract, grapfView.minesWithGold[destinationNode] }; });
 
+        fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Mining, () => { Debug.Log("*Procede a minar*"); });
 
+        Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
+
+        transform.position = aux;
+
+        fsm.ForceState(Behaivours.Move);
     }
 
-    public IEnumerator Move(ICollection<Node<Vector2Int>> path) 
+    private void Update()
     {
-        if (path == null)
-            yield return null;
-
-        foreach (Node<Vector2Int> node in path)
-        {
-            currentNode = node;
-            transform.position = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
-            yield return new WaitForSeconds(1.0f);
-        }
-
-        StartCoroutine(Extract());
+        fsm.Tick();
     }
 
     public IEnumerator Extract()
@@ -84,10 +66,11 @@ public class Traveler : MonoBehaviour
         while (gold < 15)
         {
             gold++;
+            grapfView.minesWithGold[currentNode]--;
             yield return new WaitForSeconds(timeToExtract);
         }
 
-        StartCoroutine(ComeBack(path));
+        grapfView.minesWithGold.Remove(currentNode);
     }
 
     public IEnumerator ComeBack(ICollection<Node<Vector2Int>> path)
@@ -109,6 +92,7 @@ public class Traveler : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        /*
         if (!Application.isPlaying || !isRunning)
             return;
 
@@ -129,5 +113,6 @@ public class Traveler : MonoBehaviour
             Vector3 nodeCordinates = new Vector3(grapfView.OffsetPublic * node.GetCoordinate().x, grapfView.OffsetPublic * node.GetCoordinate().y);
             Gizmos.DrawWireSphere(nodeCordinates, 0.2f);
         }
+         */
     }
 }

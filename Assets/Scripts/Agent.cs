@@ -16,20 +16,20 @@ public class Agent : MonoBehaviour
     {
         fsm = new FSM<Behaivours, Flags>();
 
-        fsm.AddBehaviour<ChaseState>(Behaivours.Chase,
+        fsm.AddBehaviour<MoveState>(Behaivours.Move,
             onTickParameters: () => { return new object[] { this.transform, target, speed, explodeDistance, lostDistance }; });
 
-        fsm.AddBehaviour<PatrolState>(Behaivours.Patrol,
+        fsm.AddBehaviour<MiningState>(Behaivours.Mining,
             onTickParameters: () => { return new object[] { this.transform, wayPoints[0], wayPoints[1], target, speed, chaseDistance }; });
 
         fsm.AddBehaviour<ExplodeState>(Behaivours.Explode,
             onTickParameters: () => { return new object[] { this.transform, target, speed }; });
 
-        fsm.SetTrasnsition(Behaivours.Patrol, Flags.OnTargetNear, Behaivours.Chase, () => { Debug.Log("CAGASTE"); });
-        fsm.SetTrasnsition(Behaivours.Chase, Flags.OnTargetReach, Behaivours.Explode, () => { Debug.Log("*Procede a explotar*"); });
-        fsm.SetTrasnsition(Behaivours.Chase, Flags.OnTargetLost, Behaivours.Patrol, () => { Debug.Log("Verga, se fue"); });
+        fsm.SetTrasnsition(Behaivours.Mining, Flags.OnTargetNear, Behaivours.Move, () => { Debug.Log("CAGASTE"); });
+        fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Explode, () => { Debug.Log("*Procede a explotar*"); });
+        fsm.SetTrasnsition(Behaivours.Move, Flags.OnTargetLost, Behaivours.Mining, () => { Debug.Log("Verga, se fue"); });
 
-        fsm.ForceState(Behaivours.Patrol);
+        fsm.ForceState(Behaivours.Mining);
     }
 
 
@@ -41,14 +41,14 @@ public class Agent : MonoBehaviour
 }
 public enum Behaivours
 {
-    Chase,
-    Patrol,
+    Move,
+    Mining,
     Explode
 }
 
 public enum Flags
 {
-    OnTargetReach,
+    OnReadyToMine,
     OnTargetLost,
     OnTargetNear,
 }

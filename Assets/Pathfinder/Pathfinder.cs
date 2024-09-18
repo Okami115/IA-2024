@@ -75,6 +75,8 @@ public abstract class Pathfinder<NodeType, Coorninate>
             List<NodeType> path = new List<NodeType>();
             NodeType currentNode = goalNode;
 
+            path.Add(startNode);
+
             while (!NodesEquals(currentNode, startNode))
             {
                 path.Add(currentNode);

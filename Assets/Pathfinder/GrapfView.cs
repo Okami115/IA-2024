@@ -18,6 +18,9 @@ public class GrapfView : MonoBehaviour
 
     public List<Node<Vector2Int>> mines;
 
+
+    public Dictionary<Node<Vector2Int>, int> minesWithGold = new Dictionary<Node<Vector2Int>, int>();
+
     public Node<Vector2Int> urbanCenter;
 
     [SerializeField] private TypeOfPathFinder typeOfPathFinder;
@@ -66,6 +69,7 @@ public class GrapfView : MonoBehaviour
         {
             bool isUsed = true;
             Node<Vector2Int> tempNode = new Node<Vector2Int>();
+
             while (isUsed)
             {
                 tempNode = grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)];
@@ -73,7 +77,9 @@ public class GrapfView : MonoBehaviour
                 if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
                     isUsed = false;
             }
+
             mines.Add(tempNode);
+            minesWithGold.Add(tempNode, 15);
         }
 
         ChangePathFinder?.Invoke(UnityEngine.Random.Range(0, grapf.nodes.Count), UnityEngine.Random.Range(0, mines.Count));
