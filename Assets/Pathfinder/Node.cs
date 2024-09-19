@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 
-[Serializable]
 public class Node<Coordinate> : INode<Coordinate>, IEquatable<Node<Coordinate>>
     where Coordinate : IEquatable<Coordinate>
 {

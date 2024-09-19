@@ -1,15 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class Traveler : MonoBehaviour
 {
     public GrapfView grapfView;
 
-    [SerializeField] private Node<Vector2Int> destinationNode;
-    [SerializeField] public Node<Vector2Int> currentNode;
+    public Node<Vector2Int> destinationNode;
+    public Node<Vector2Int> currentNode;
 
     [SerializeField] private Inventory inventory;
 
@@ -45,9 +42,11 @@ public class Traveler : MonoBehaviour
 
         fsm.AddBehaviour<MiningState>(Behaivours.Mining,
             onEnterParameters: () => { return new object[] { currentNode, inventory, grapfView.mines }; },
-            onTickParameters: () => { return new object[] { minningSpeed }; });
+            onTickParameters: () => { return new object[] { minningSpeed }; },
+            onExitParameters: () => { return new object[] { this }; });
 
         fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Mining, () => { Debug.Log("*Procede a minar*"); });
+        fsm.SetTrasnsition(Behaivours.Mining, Flags.OnReadyToBack, Behaivours.Move, () => { Debug.Log("*Procede a volver*"); });
 
         Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
 

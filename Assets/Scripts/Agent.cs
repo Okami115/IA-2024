@@ -25,10 +25,6 @@ public class Agent : MonoBehaviour
         fsm.AddBehaviour<ExplodeState>(Behaivours.Explode,
             onTickParameters: () => { return new object[] { this.transform, target, speed }; });
 
-        fsm.SetTrasnsition(Behaivours.Mining, Flags.OnTargetNear, Behaivours.Move, () => { Debug.Log("CAGASTE"); });
-        fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Explode, () => { Debug.Log("*Procede a explotar*"); });
-        fsm.SetTrasnsition(Behaivours.Move, Flags.OnTargetLost, Behaivours.Mining, () => { Debug.Log("Verga, se fue"); });
-
         fsm.ForceState(Behaivours.Mining);
     }
 
@@ -49,6 +45,5 @@ public enum Behaivours
 public enum Flags
 {
     OnReadyToMine,
-    OnTargetLost,
-    OnTargetNear,
+    OnReadyToBack,
 }

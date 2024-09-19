@@ -1,7 +1,6 @@
 ﻿using BehaivioursActions;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public sealed class MiningState : State
@@ -33,7 +32,16 @@ public sealed class MiningState : State
 
     public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
     {
-        return default;
+        Traveler traveler = parameters[0] as Traveler;
+
+        BehaivioursAction result = new BehaivioursAction();
+
+        result.AddMainThreadBehaviours(0, () =>
+        {
+            traveler.destinationNode = traveler.grapfView.urbanCenter;
+        });
+
+        return result;
     }
 
     public override BehaivioursAction GetTickBehaviours(params object[] parameters)
@@ -56,6 +64,7 @@ public sealed class MiningState : State
             if(inventory.gold >= 15)
             {
                 Debug.Log("Full of Gold");
+                OnFlag?.Invoke(Flags.OnReadyToBack);
             }
         });
         return result;
