@@ -5,7 +5,6 @@ public class Traveler : MonoBehaviour
 {
     public GrapfView grapfView;
 
-    public Node<Vector2Int> destinationNode;
     public Node<Vector2Int> currentNode;
 
     [SerializeField] private Inventory inventory;
@@ -34,19 +33,24 @@ public class Traveler : MonoBehaviour
         isRunning = true;
         StopAllCoroutines();
         currentNode = grapfView.urbanCenter;
-        destinationNode = grapfView.mines[endIndexNode].currentNode;
 
         fsm.AddBehaviour<MoveState>(Behaivours.Move,
-            onEnterParameters: () => { return new object[] { currentNode, destinationNode, grapfView }; },
+            onEnterParameters: () => { return new object[] { currentNode, grapfView, inventory }; },
             onTickParameters: () => { return new object[] { transform, grapfView.OffsetPublic, speed, this }; });
 
         fsm.AddBehaviour<MiningState>(Behaivours.Mining,
             onEnterParameters: () => { return new object[] { currentNode, inventory, grapfView.mines }; },
-            onTickParameters: () => { return new object[] { minningSpeed }; },
+            onTickParameters: () => { return new object[] { minningSpeed, Time.deltaTime, grapfView.mines }; },
             onExitParameters: () => { return new object[] { this }; });
 
+        fsm.AddBehaviour<WaitingFoodState>(Behaivours.Piquete,
+            onEnterParameters: () => { return new object[] { currentNode, grapfView.mines }; },
+            onTickParameters: () => { return new object[] { inventory }; });
+
         fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Mining, () => { Debug.Log("*Procede a minar*"); });
-        fsm.SetTrasnsition(Behaivours.Mining, Flags.OnReadyToBack, Behaivours.Move, () => { Debug.Log("*Procede a volver*"); });
+        fsm.SetTrasnsition(Behaivours.Mining, Flags.OnReadyToBack, Behaivours.Move, () => { Debug.Log("*Procede a caminar*"); });
+        fsm.SetTrasnsition(Behaivours.Mining, Flags.OnReadyToEat, Behaivours.Piquete, () => { Debug.Log("*Procede a hacer piquete*"); });
+        fsm.SetTrasnsition(Behaivours.Piquete, Flags.OnReadyToMine, Behaivours.Mining, () => { Debug.Log("*Procede a minar sin hambre*"); });
 
         Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
 

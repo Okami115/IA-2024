@@ -629,7 +629,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1
+  m_Text: 5
 --- !u!222 &674846228
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1581,7 +1581,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 1
+  m_Text: 5
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -2299,6 +2299,10 @@ PrefabInstance:
     - target: {fileID: 5680024887706188184, guid: 207db0787cc61c046981e98728f9ab7a, type: 3}
       propertyPath: timeToExtract
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5680024887706188184, guid: 207db0787cc61c046981e98728f9ab7a, type: 3}
+      propertyPath: inventory.food
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 6100304400091518012, guid: 207db0787cc61c046981e98728f9ab7a, type: 3}
       propertyPath: m_Name

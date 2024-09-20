@@ -66,11 +66,11 @@ public class GrapfView : MonoBehaviour
         for (int i = 0; i < int.Parse(minesCount.text); i++)
         {
             bool isUsed = true;
-            Mine<Vector2Int> tempNode = new Mine<Vector2Int>(new Node<Vector2Int>(), 0);
+            Mine<Vector2Int> tempNode = new Mine<Vector2Int>(new Node<Vector2Int>(), 0, 0);
 
             while (isUsed)
             {
-                tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 15);
+                tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 7, 1);
 
                 if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
                     isUsed = false;
@@ -104,15 +104,18 @@ public class GrapfView : MonoBehaviour
     }
 }
 
+[Serializable]
 public class Mine<Coordinates>
     where Coordinates : IEquatable<Coordinates>
 {
     public Node<Coordinates> currentNode;
-    public float     currentGold;
+    public float currentGold;
+    public int currentFood;
 
-    public Mine(Node<Coordinates> startNode, float startGold)
+    public Mine(Node<Coordinates> startNode, float startGold, int startFood)
     {
         currentNode = startNode;
         currentGold = startGold;
+        currentFood = startFood;
     }
 }

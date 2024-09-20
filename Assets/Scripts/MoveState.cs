@@ -8,22 +8,27 @@ public sealed class MoveState : State
     private Pathfinder<Node<Vector2Int>, Vector2Int> pathfinder;
     private List<Node<Vector2Int>> path = new List<Node<Vector2Int>>();
 
-    Node<Vector2Int> destinationNode;
+    private GrapfView grapfView;
 
-    public GrapfView grapfView;
+    private Inventory inventory;
 
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         BehaivioursAction result = new BehaivioursAction();
 
         Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
-        destinationNode = parameters[1] as Node<Vector2Int>;
-        grapfView = parameters[2] as GrapfView;
+        grapfView = parameters[1] as GrapfView;
+        inventory = parameters[2] as Inventory;
 
         result.AddMultiThreadsBehaviours(0, () =>
         {
             pathfinder = new AStarPathfinder<Node<Vector2Int>, Vector2Int>();
-            path = pathfinder.FindPath(currentNode, destinationNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+
+            if(inventory.gold >= 15)
+                path = pathfinder.FindPath(currentNode, grapfView.urbanCenter, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+            else
+                path = pathfinder.FindPath(currentNode, grapfView.mines[0].currentNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+
             
         });
 
@@ -48,7 +53,6 @@ public sealed class MoveState : State
         {
             if(path.Count > 0)
             {
-                Debug.Log("Permiso dijo el petiso...");
                 Vector3 aux = new Vector3(OffsetPublic * path[0].GetCoordinate().x, OffsetPublic * path[0].GetCoordinate().y);
 
                 transform.position += (aux - transform.position).normalized * speed * Time.deltaTime;
@@ -68,8 +72,12 @@ public sealed class MoveState : State
         {
             if (path.Count == 0)
             {
-                OnFlag?.Invoke(Flags.OnReadyToMine);
+                if(inventory.gold < 15)
+                {
+                    OnFlag?.Invoke(Flags.OnReadyToMine);
+                }
             }
+
         });
         return result;
     }

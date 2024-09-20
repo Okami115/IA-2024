@@ -7,6 +7,9 @@ public sealed class MiningState : State
 {
     private Mine<Vector2Int> mine;
     private Inventory inventory;
+
+    float time = 0f;
+    int counter = 0;
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
@@ -32,41 +35,62 @@ public sealed class MiningState : State
 
     public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
     {
-        Traveler traveler = parameters[0] as Traveler;
-
-        BehaivioursAction result = new BehaivioursAction();
-
-        result.AddMainThreadBehaviours(0, () =>
-        {
-            traveler.destinationNode = traveler.grapfView.urbanCenter;
-        });
-
-        return result;
+        return default;
     }
 
     public override BehaivioursAction GetTickBehaviours(params object[] parameters)
     {
         float minningSpeed = Convert.ToSingle(parameters[0]);
+        float deltaTime = Convert.ToSingle(parameters[1]);
+        List<Mine<Vector2Int>> mines = parameters[2] as List<Mine<Vector2Int>>;
 
         BehaivioursAction result = new BehaivioursAction();
 
-        result.AddMainThreadBehaviours(0, () => 
+        result.AddMultiThreadsBehaviours(0, () => 
         {
             if(mine.currentGold > 0)
             {
-                inventory.gold += Time.deltaTime * minningSpeed;
-                mine.currentGold -= Time.deltaTime * minningSpeed;
+                time += deltaTime;
+
+                if (time > minningSpeed)
+                {
+                    inventory.gold++;
+                    mine.currentGold--;
+                    counter++;
+                    time = 0;
+                }
+
+                if(counter >= 3)
+                {
+                    mine.currentFood--;
+                    counter = 0;
+                }
             }                
         });
 
         result.SetTransition(() =>
         {
-            if(inventory.gold >= 15)
+            if(mine.currentFood == 0)
+            {
+                Debug.Log("No more food");
+                OnFlag?.Invoke(Flags.OnReadyToEat);
+            }
+
+            if (mine.currentGold <= 0)
+            {
+                Debug.Log("No more gold");
+                OnFlag?.Invoke(Flags.OnReadyToBack);
+                mines.Remove(mine);
+            }
+
+            if (inventory.gold >= 15)
             {
                 Debug.Log("Full of Gold");
                 OnFlag?.Invoke(Flags.OnReadyToBack);
             }
+
         });
+
         return result;
     }
 }

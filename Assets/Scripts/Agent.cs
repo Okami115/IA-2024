@@ -22,7 +22,7 @@ public class Agent : MonoBehaviour
         fsm.AddBehaviour<MiningState>(Behaivours.Mining,
             onTickParameters: () => { return new object[] { this.transform, wayPoints[0], wayPoints[1], target, speed, chaseDistance }; });
 
-        fsm.AddBehaviour<ExplodeState>(Behaivours.Explode,
+        fsm.AddBehaviour<WaitingFoodState>(Behaivours.Piquete,
             onTickParameters: () => { return new object[] { this.transform, target, speed }; });
 
         fsm.ForceState(Behaivours.Mining);
@@ -39,11 +39,12 @@ public enum Behaivours
 {
     Move,
     Mining,
-    Explode
+    Piquete
 }
 
 public enum Flags
 {
     OnReadyToMine,
     OnReadyToBack,
+    OnReadyToEat,
 }
