@@ -35,16 +35,4 @@ public class Agent : MonoBehaviour
     }
 
 }
-public enum Behaivours
-{
-    Move,
-    Mining,
-    Piquete
-}
 
-public enum Flags
-{
-    OnReadyToMine,
-    OnReadyToBack,
-    OnReadyToEat,
-}

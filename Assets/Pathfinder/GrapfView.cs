@@ -70,7 +70,7 @@ public class GrapfView : MonoBehaviour
 
             while (isUsed)
             {
-                tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 7, 1);
+                tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 7, 0);
 
                 if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
                     isUsed = false;

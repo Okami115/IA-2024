@@ -103,3 +103,17 @@ public class Inventory
         this.gold = gold;
     }
 }
+
+public enum Behaivours
+{
+    Move,
+    Mining,
+    Piquete
+}
+
+public enum Flags
+{
+    OnReadyToMine,
+    OnReadyToBack,
+    OnReadyToEat,
+}
