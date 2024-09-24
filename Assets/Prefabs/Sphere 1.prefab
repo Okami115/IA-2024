@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 766605976338887378}
   - component: {fileID: 5517610992800431549}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: Sphere 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 180.4295, y: 129.56425, z: 8.899058}
-  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c22c3cda5db42464ea30d8dcaa028989, type: 2}
+  - {fileID: 2100000, guid: 1191007351a6361438ebd492af1a3251, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

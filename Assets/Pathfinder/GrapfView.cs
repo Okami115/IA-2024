@@ -16,23 +16,29 @@ public enum TypeOfPathFinder
 public class GrapfView : MonoBehaviour
 {
     public Vector2IntGrapf<Node<Vector2Int>> grapf;
-
-    public List<Mine<Vector2Int>> mines;
-
     public Node<Vector2Int> urbanCenter;
 
+    [Header("For Caravanas")]
+    public int foodForCaravana;
+    public List<Caravana> caravanas;
+
+    [Header("For Miners")]
+    public List<Mine<Vector2Int>> mines;
+    public List<Traveler> travelers;
+
+    [Header("Variables")]
     [SerializeField] private TypeOfPathFinder typeOfPathFinder;
+    public GameObject prefab;
+    public GameObject prefab2;
+    public int OffsetPublic;
 
+    [Header("Menu")]
     [SerializeField] private GameObject panel;
-
     [SerializeField] private InputField inputX;
     [SerializeField] private InputField inputY;
     [SerializeField] private InputField Offset;
     [SerializeField] private InputField minesCount;
-
     [SerializeField] private Button play;
-
-    public int OffsetPublic;
 
     public Action<int, int> ChangePathFinder;
     private bool isRunning = false;
@@ -43,6 +49,8 @@ public class GrapfView : MonoBehaviour
     {
         play.onClick.AddListener(OnPlaySimulation);
         mines = new List<Mine<Vector2Int>>();
+        caravanas = new List<Caravana>();
+        travelers = new List<Traveler>();
     }
 
     private void OnPlaySimulation()
@@ -62,6 +70,9 @@ public class GrapfView : MonoBehaviour
 
 
         urbanCenter = grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)];
+        Instantiate(prefab2,
+                       new Vector3(urbanCenter.GetCoordinate().x * OffsetPublic, urbanCenter.GetCoordinate().y * OffsetPublic, 0),
+                       Quaternion.identity);
 
         for (int i = 0; i < int.Parse(minesCount.text); i++)
         {
@@ -73,7 +84,12 @@ public class GrapfView : MonoBehaviour
                 tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 7, 0);
 
                 if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
+                {
                     isUsed = false;
+                    Instantiate(prefab, 
+                        new Vector3(tempNode.currentNode.GetCoordinate().x * OffsetPublic, tempNode.currentNode.GetCoordinate().y * OffsetPublic, 0), 
+                        Quaternion.identity);
+                }
             }
 
             mines.Add(tempNode);
@@ -111,11 +127,13 @@ public class Mine<Coordinates>
     public Node<Coordinates> currentNode;
     public float currentGold;
     public int currentFood;
+    public List<Traveler> miners;
 
     public Mine(Node<Coordinates> startNode, float startGold, int startFood)
     {
         currentNode = startNode;
         currentGold = startGold;
         currentFood = startFood;
+        miners = new List<Traveler>();
     }
 }

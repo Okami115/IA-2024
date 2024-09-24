@@ -8,32 +8,20 @@ public sealed class MoveCaravanaState : State
     private Pathfinder<Node<Vector2Int>, Vector2Int> pathfinder;
     private List<Node<Vector2Int>> path = new List<Node<Vector2Int>>();
 
-    private List<Mine<Vector2Int>> mines = new List<Mine<Vector2Int>>();
-
     private GrapfView grapfView;
 
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
-        grapfView = parameters[1] as GrapfView;
-        mines = grapfView.mines;
+        Node<Vector2Int> destinationNode = parameters[1] as Node<Vector2Int>;
+        grapfView = parameters[2] as GrapfView;
 
         BehaivioursAction result = new BehaivioursAction();
 
         result.AddMultiThreadsBehaviours(0, () =>
         {
-            List<Mine<Vector2Int>> minesWithoutFood = new List<Mine<Vector2Int>>();
-
-            foreach (Mine<Vector2Int> mine in mines)
-            {
-                if(mine.currentFood <= 0)
-                    minesWithoutFood.Add(mine);
-            }
-
-            mines = minesWithoutFood;
-
             pathfinder = new AStarPathfinder<Node<Vector2Int>, Vector2Int>();
-            path = pathfinder.FindPath(currentNode, mines[0].currentNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+            path = pathfinder.FindPath(currentNode, destinationNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
         });
 
         return result;
@@ -61,7 +49,7 @@ public sealed class MoveCaravanaState : State
                 transform.position += (aux - transform.position).normalized * speed * Time.deltaTime;
 
                 float dist = Vector3.Distance(transform.position, aux);
-                float minDist = 0.001f;
+                float minDist = 0.1f;
 
                 if (dist < minDist)
                 {
@@ -69,27 +57,21 @@ public sealed class MoveCaravanaState : State
                     path.Remove(path[0]);
                 }
             }
-            else if(mines.Count != 0)
-            {
-                mines[0].currentFood = 5;
-                mines.Remove(mines[0]);
-                if(mines.Count > 0)
-                {
-                    path = pathfinder.FindPath(caravana.currentNode, mines[0].currentNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
-                }
-            }
-            else
-            {
-                path = pathfinder.FindPath(caravana.currentNode, grapfView.urbanCenter, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
-            }
 
         });
 
         result.SetTransition(() =>
         {
-            if (mines.Count == 0)
+            if (path.Count == 0)
             {
-                //OnFlag?.Invoke(Flags.OnReadyToMine);
+                if(caravana.currentNode != grapfView.urbanCenter)
+                {
+                    OnFlag?.Invoke(Flags.OnReadyToGiveFood);
+                }
+                else if(caravana.currentNode == grapfView.urbanCenter)
+                {
+                    OnFlag?.Invoke(Flags.OnWaitingOrders);
+                }
             }
 
         });

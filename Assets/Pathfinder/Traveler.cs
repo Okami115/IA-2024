@@ -39,7 +39,7 @@ public class Traveler : MonoBehaviour
             onTickParameters: () => { return new object[] { transform, grapfView.OffsetPublic, speed, this }; });
 
         fsm.AddBehaviour<MiningState>(Behaivours.Mining,
-            onEnterParameters: () => { return new object[] { currentNode, inventory, grapfView.mines }; },
+            onEnterParameters: () => { return new object[] { currentNode, inventory, grapfView.mines, this }; },
             onTickParameters: () => { return new object[] { minningSpeed, Time.deltaTime, grapfView.mines }; },
             onExitParameters: () => { return new object[] { this }; });
 
@@ -108,7 +108,9 @@ public enum Behaivours
 {
     Move,
     Mining,
-    Piquete
+    Piquete,
+    Wait,
+    GiveFood
 }
 
 public enum Flags
@@ -116,4 +118,7 @@ public enum Flags
     OnReadyToMine,
     OnReadyToBack,
     OnReadyToEat,
+    OnWaitingOrders,
+    OnReadyToTravel,
+    OnReadyToGiveFood
 }

@@ -6,7 +6,10 @@ public class Caravana : MonoBehaviour
 
     public Node<Vector2Int> currentNode;
 
+    public Node<Vector2Int> targetNode;
+
     public float speed;
+    public int food;
 
     private FSM<Behaivours, Flags> fsm;
 
@@ -28,17 +31,28 @@ public class Caravana : MonoBehaviour
         currentNode = grapfView.urbanCenter;
 
         fsm.AddBehaviour<MoveCaravanaState>(Behaivours.Move,
-            onEnterParameters: () => { return new object[] { currentNode, grapfView}; },
+            onEnterParameters: () => { return new object[] { currentNode, targetNode, grapfView}; },
             onTickParameters: () => { return new object[] { transform, speed, this }; });
 
+        fsm.AddBehaviour<WaitOrdersState>(Behaivours.Wait,
+            onEnterParameters: () => { return new object[] { grapfView, this }; },
+            onTickParameters: () => { return new object[] { transform, speed, this }; });
 
-        //fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToMine, Behaivours.Mining, () => { Debug.Log("*Procede a minar*"); });
+        fsm.AddBehaviour<GiveFoodState>(Behaivours.GiveFood,
+            onEnterParameters: () => { return new object[] { currentNode, grapfView }; },
+            onTickParameters: () => {return new object[] { this}; });
+
+
+        fsm.SetTrasnsition(Behaivours.Wait, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
+        fsm.SetTrasnsition(Behaivours.GiveFood, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
+        fsm.SetTrasnsition(Behaivours.Move, Flags.OnWaitingOrders, Behaivours.Wait, () => { Debug.Log("*Procede a esperar*"); });
+        fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToGiveFood, Behaivours.GiveFood, () => { Debug.Log("*Procede a dar comida*"); });
 
         Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
 
         transform.position = aux;
 
-        fsm.ForceState(Behaivours.Move);
+        fsm.ForceState(Behaivours.Wait);
     }
 
     private void Update()

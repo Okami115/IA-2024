@@ -7,6 +7,7 @@ public sealed class MiningState : State
 {
     private Mine<Vector2Int> mine;
     private Inventory inventory;
+    Traveler miner;
 
     float time = 0f;
     int counter = 0;
@@ -15,6 +16,7 @@ public sealed class MiningState : State
         Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
         inventory = parameters[1] as Inventory;
         List<Mine<Vector2Int>> mines = parameters[2] as List<Mine<Vector2Int>>;
+        miner = parameters[3] as Traveler;
 
         BehaivioursAction result = new BehaivioursAction();
         result.AddMainThreadBehaviours(0, () =>
@@ -28,6 +30,8 @@ public sealed class MiningState : State
                 }
             }
 
+            mine.miners.Add(miner);
+
         });
 
         return result;
@@ -35,7 +39,13 @@ public sealed class MiningState : State
 
     public override BehaivioursAction GetOnExitBehaviours(params object[] parameters)
     {
-        return default;
+        BehaivioursAction result = new BehaivioursAction();
+        result.AddMainThreadBehaviours(0, () =>
+        {
+            mine.miners.Remove(miner);
+        });
+
+        return result;
     }
 
     public override BehaivioursAction GetTickBehaviours(params object[] parameters)

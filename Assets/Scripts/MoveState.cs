@@ -58,7 +58,7 @@ public sealed class MoveState : State
                 transform.position += (aux - transform.position).normalized * speed * Time.deltaTime;
 
                 float dist = Vector3.Distance(transform.position, aux);
-                float minDist = 0.001f;
+                float minDist = 0.1f;
 
                 if (dist < minDist)
                 {
