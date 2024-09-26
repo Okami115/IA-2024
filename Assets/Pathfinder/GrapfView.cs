@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +30,7 @@ public class GrapfView : MonoBehaviour
     public GameObject prefab;
     public GameObject prefab2;
     public int OffsetPublic;
+    public bool isAlert;
 
     [Header("Menu")]
     [SerializeField] private GameObject panel;
@@ -51,6 +51,7 @@ public class GrapfView : MonoBehaviour
         mines = new List<Mine<Vector2Int>>();
         caravanas = new List<Caravana>();
         travelers = new List<Traveler>();
+        isAlert = false;
     }
 
     private void OnPlaySimulation()
@@ -58,12 +59,12 @@ public class GrapfView : MonoBehaviour
         OffsetPublic = int.Parse(Offset.text);
 
         panel.SetActive(false);
-        grapf = new Vector2IntGrapf<Node<Vector2Int>>(int.Parse(inputX.text), int.Parse(inputY.text), 
+        grapf = new Vector2IntGrapf<Node<Vector2Int>>(int.Parse(inputX.text), int.Parse(inputY.text),
             int.Parse(Offset.text), typeOfPathFinder);
 
 
-        Vector3 newCamPos = new Vector3(int.Parse(inputX.text) * int.Parse(Offset.text) / 2, 
-            int.Parse(inputY.text) * int.Parse(Offset.text) / 2, 
+        Vector3 newCamPos = new Vector3(int.Parse(inputX.text) * int.Parse(Offset.text) / 2,
+            int.Parse(inputY.text) * int.Parse(Offset.text) / 2,
             (int.Parse(Offset.text) * ((int.Parse(inputY.text) + int.Parse(inputX.text)) / 2)) * -1);
 
         Camera.main.transform.position = newCamPos;
@@ -83,11 +84,11 @@ public class GrapfView : MonoBehaviour
             {
                 tempNode = new Mine<Vector2Int>(grapf.nodes[UnityEngine.Random.Range(0, grapf.nodes.Count)], 7, 0);
 
-                if(!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
+                if (!tempNode.Equals(urbanCenter) && !mines.Contains(tempNode))
                 {
                     isUsed = false;
-                    Instantiate(prefab, 
-                        new Vector3(tempNode.currentNode.GetCoordinate().x * OffsetPublic, tempNode.currentNode.GetCoordinate().y * OffsetPublic, 0), 
+                    Instantiate(prefab,
+                        new Vector3(tempNode.currentNode.GetCoordinate().x * OffsetPublic, tempNode.currentNode.GetCoordinate().y * OffsetPublic, 0),
                         Quaternion.identity);
                 }
             }

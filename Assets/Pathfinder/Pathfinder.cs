@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public abstract class Pathfinder<NodeType, Coorninate> 
+public abstract class Pathfinder<NodeType, Coorninate>
     where NodeType : INode<Coorninate>
     where Coorninate : IEquatable<Coorninate>
 {

@@ -24,12 +24,12 @@ public sealed class MoveState : State
         {
             pathfinder = new AStarPathfinder<Node<Vector2Int>, Vector2Int>();
 
-            if(inventory.gold >= 15)
+            if (inventory.gold >= 15)
                 path = pathfinder.FindPath(currentNode, grapfView.urbanCenter, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
             else
                 path = pathfinder.FindPath(currentNode, grapfView.mines[0].currentNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
 
-            
+
         });
 
         return result;
@@ -51,7 +51,7 @@ public sealed class MoveState : State
 
         result.AddMainThreadBehaviours(0, () =>
         {
-            if(path.Count > 0)
+            if (path.Count > 0)
             {
                 Vector3 aux = new Vector3(OffsetPublic * path[0].GetCoordinate().x, OffsetPublic * path[0].GetCoordinate().y);
 
@@ -72,7 +72,7 @@ public sealed class MoveState : State
         {
             if (path.Count == 0)
             {
-                if(inventory.gold < 15)
+                if (inventory.gold < 15)
                 {
                     OnFlag?.Invoke(Flags.OnReadyToMine);
                 }

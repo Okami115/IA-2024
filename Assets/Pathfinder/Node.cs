@@ -42,7 +42,7 @@ public class Node<Coordinate> : INode<Coordinate>, IEquatable<Node<Coordinate>>
 
     public void SetNeighborCost(INode<Coordinate> neighbor, int cost)
     {
-        if(costToNeighbors.ContainsKey(neighbor))
+        if (costToNeighbors.ContainsKey(neighbor))
             costToNeighbors[neighbor] = cost;
     }
 

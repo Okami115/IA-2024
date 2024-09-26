@@ -1,5 +1,4 @@
 ﻿using BehaivioursActions;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,7 +38,7 @@ public sealed class WaitingFoodState : State
 
         result.SetTransition(() =>
         {
-            if(mine.currentFood > 0)
+            if (mine.currentFood > 0)
             {
                 Debug.Log("*Le tiran un pan*");
                 OnFlag?.Invoke(Flags.OnReadyToMine);

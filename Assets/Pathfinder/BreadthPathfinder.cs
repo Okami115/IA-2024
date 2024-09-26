@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class BreadthPathfinder<Node, Coorninate> : Pathfinder<Node, Coorninate> 
+public class BreadthPathfinder<Node, Coorninate> : Pathfinder<Node, Coorninate>
     where Node : INode<Coorninate>
     where Coorninate : IEquatable<Coorninate>
 {

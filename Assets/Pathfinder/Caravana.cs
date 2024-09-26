@@ -31,7 +31,7 @@ public class Caravana : MonoBehaviour
         currentNode = grapfView.urbanCenter;
 
         fsm.AddBehaviour<MoveCaravanaState>(Behaivours.Move,
-            onEnterParameters: () => { return new object[] { currentNode, targetNode, grapfView}; },
+            onEnterParameters: () => { return new object[] { currentNode, targetNode, grapfView }; },
             onTickParameters: () => { return new object[] { transform, speed, this }; });
 
         fsm.AddBehaviour<WaitOrdersState>(Behaivours.Wait,
@@ -40,7 +40,7 @@ public class Caravana : MonoBehaviour
 
         fsm.AddBehaviour<GiveFoodState>(Behaivours.GiveFood,
             onEnterParameters: () => { return new object[] { currentNode, grapfView }; },
-            onTickParameters: () => {return new object[] { this}; });
+            onTickParameters: () => { return new object[] { this }; });
 
 
         fsm.SetTrasnsition(Behaivours.Wait, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });

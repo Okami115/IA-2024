@@ -64,11 +64,11 @@ public sealed class MoveCaravanaState : State
         {
             if (path.Count == 0)
             {
-                if(caravana.currentNode != grapfView.urbanCenter)
+                if (caravana.currentNode != grapfView.urbanCenter)
                 {
                     OnFlag?.Invoke(Flags.OnReadyToGiveFood);
                 }
-                else if(caravana.currentNode == grapfView.urbanCenter)
+                else if (caravana.currentNode == grapfView.urbanCenter)
                 {
                     OnFlag?.Invoke(Flags.OnWaitingOrders);
                 }

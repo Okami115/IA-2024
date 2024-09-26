@@ -20,7 +20,7 @@ public sealed class MiningState : State
 
         BehaivioursAction result = new BehaivioursAction();
         result.AddMainThreadBehaviours(0, () =>
-        { 
+        {
             for (int i = 0; i < mines.Count; i++)
             {
                 if (mines[i].currentNode == currentNode)
@@ -56,9 +56,9 @@ public sealed class MiningState : State
 
         BehaivioursAction result = new BehaivioursAction();
 
-        result.AddMultiThreadsBehaviours(0, () => 
+        result.AddMultiThreadsBehaviours(0, () =>
         {
-            if(mine.currentGold > 0)
+            if (mine.currentGold > 0)
             {
                 time += deltaTime;
 
@@ -70,17 +70,17 @@ public sealed class MiningState : State
                     time = 0;
                 }
 
-                if(counter >= 3)
+                if (counter >= 3)
                 {
                     mine.currentFood--;
                     counter = 0;
                 }
-            }                
+            }
         });
 
         result.SetTransition(() =>
         {
-            if(mine.currentFood == 0)
+            if (mine.currentFood == 0)
             {
                 Debug.Log("No more food");
                 OnFlag?.Invoke(Flags.OnReadyToEat);

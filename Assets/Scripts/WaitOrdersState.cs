@@ -47,7 +47,7 @@ public sealed class WaitOrdersState : State
 
         result.SetTransition(() =>
         {
-            if(onTargeSet)
+            if (onTargeSet)
             {
                 OnFlag?.Invoke(Flags.OnReadyToTravel);
             }

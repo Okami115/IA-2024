@@ -1,9 +1,8 @@
-using System;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
 {
-    private FSM<Behaivours,Flags> fsm;
+    private FSM<Behaivours, Flags> fsm;
 
     [SerializeField] private Transform target;
     [SerializeField] private Transform[] wayPoints;

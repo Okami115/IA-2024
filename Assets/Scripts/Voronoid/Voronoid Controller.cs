@@ -1,32 +1,26 @@
 using System.Collections.Generic;
 using System.Drawing;
+using UnityEditor;
 using UnityEngine;
 
 public class VoronoidController : MonoBehaviour
 {
-    [SerializeField] private GameObject prefab;
-
     private List<Vector3> nodes = new List<Vector3>();
-    private List<Vector3> mines = new List<Vector3>();
+    private List<MinesTemp> mines = new List<MinesTemp>();
     Vector3 mid;
 
     List<Vector3> vertex = new List<Vector3>();
-    List<Side> sides = new List<Side>();
 
-    Side side1;
-    Side side2;
-    Side side3;
+    List<Side> aux;
+
     void Start()
     {
-        sides.Add(new Side(new Vector3(9, 0, 9), new Vector3(9, 0, 0)));
-        sides.Add(new Side(new Vector3(9, 0, 9), new Vector3(0, 0, 9)));
-        sides.Add(new Side(new Vector3(0, 0, 0), new Vector3(0, 0, 9)));
-        sides.Add(new Side(new Vector3(0, 0, 0), new Vector3(9, 0, 0)));
+        aux = new List<Side>();
 
-        vertex.Add(new Vector3(9, 0, 9));
-        vertex.Add(new Vector3(0, 0, 0));
-        vertex.Add(new Vector3(0, 0, 9));
-        vertex.Add(new Vector3(9, 0, 0));
+        vertex.Add(new Vector3(10, 0, 10));
+        vertex.Add(new Vector3(10, 0, -1));
+        vertex.Add(new Vector3(-1, 0, -1));
+        vertex.Add(new Vector3(-1, 0, 10));
 
         for (int i = 0; i < 10; i++)
         {
@@ -38,46 +32,47 @@ public class VoronoidController : MonoBehaviour
             }
         }
 
-        mines.Add(nodes[Random.Range(0, nodes.Count)]);
-        mines.Add(nodes[Random.Range(0, nodes.Count)]);
-        //mines.Add(nodes[Random.Range(0, nodes.Count)]);
+        for (int i = 0; i < 10; i++)
+        {
+            mines.Add(new MinesTemp(nodes[Random.Range(0, nodes.Count)], new Poligon(vertex)));
+        }
 
-        side1 = GetSide(mines[0], mines[1]);
-        //side2 = GetSide(mines[1], mines[0]);
 
-        GetVertex(side1);
-        GetVertex(side2);
+        for (int i = 0; i < mines.Count; i++)
+        {
+            for (int j = 0; j < mines.Count; j++)
+            {
+                if (j != i)
+                {
+                    GetSide(mines[i], mines[j]);
+                }
+            }
+        }
+
     }
 
-    public Side GetSide(Vector3 A, Vector3 B)
+    public void GetSide(MinesTemp A, MinesTemp B)
     {
-        Vector3 mid = new Vector3((A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2);
+        Vector3 mid = new Vector3((A.position.x + B.position.x) / 2, (A.position.y + B.position.y) / 2, (A.position.z + B.position.z) / 2);
 
-        Vector3 connector = A - B;
+        Vector3 connector = A.position - B.position;
 
         Vector3 direction = new Vector3(-connector.z, 0, connector.x).normalized;
 
-        return new Side(mid - direction * 20 / 2, mid + direction * 20 / 2);
-    }
+        Side outCut = new Side(mid - direction * 20 / 2, mid + direction * 20 / 2);
 
-    public void GetVertex(Side side)
-    {
-        for (int i = 0; i < sides.Count; i++)
-        {
-            Vector3 aux;
+        aux.Add(outCut);
 
-            if (DetectarInterseccion(side, sides[i], out aux))
-            {
-                vertex.Add(aux);
-            }
-        }
+        PolygonCutter polygonCutter = new PolygonCutter();
+
+        polygonCutter.CutPolygon(A, outCut);
     }
 
     public static bool DetectarInterseccion(Side side1, Side side2, out Vector3 puntoInterseccion)
     {
         puntoInterseccion = new Vector3();
 
-        float denominator = (side1.start.x - side1.end.x) * (side2.start.z - side2.end.z) - 
+        float denominator = (side1.start.x - side1.end.x) * (side2.start.z - side2.end.z) -
             (side1.start.z - side1.end.z) * (side2.start.x - side2.end.x);
 
         if (denominator != 0)
@@ -87,7 +82,7 @@ public class VoronoidController : MonoBehaviour
 
             if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
             {
-                puntoInterseccion = new Vector3(side1.start.x + t * (side1.end.x - side1.start.x), 0 ,side1.start.z + t * (side1.end.z - side1.start.z));
+                puntoInterseccion = new Vector3(side1.start.x + t * (side1.end.x - side1.start.x), 0, side1.start.z + t * (side1.end.z - side1.start.z));
                 return true;
             }
         }
@@ -99,30 +94,43 @@ public class VoronoidController : MonoBehaviour
         if (!Application.isPlaying)
             return;
 
-        Gizmos.color = UnityEngine.Color.green;
-
         for (int i = 0; i < mines.Count; i++)
         {
-            Gizmos.DrawCube(mines[i], Vector3.one);
+            Gizmos.color = mines[i].color;
+            Gizmos.DrawCube(mines[i].position, Vector3.one / 2);
         }
 
         Gizmos.color = UnityEngine.Color.magenta;
-
-        Gizmos.DrawLine(side1.start, side1.end);
-        Gizmos.DrawLine(side2.start, side2.end);
-        Gizmos.DrawLine(side3.start, side3.end);
-
-        for (int i = 0; i < sides.Count; i++)
+        for (int i = 0; i < vertex.Count; i++)
         {
-            Gizmos.DrawLine(sides[i].start, sides[i].end);
+            Vector3 current = vertex[i];
+            Vector3 next = vertex[(i + 1) % vertex.Count];
+            Gizmos.DrawLine(current, next);
         }
 
-        Gizmos.color = UnityEngine.Color.cyan;
-        Gizmos.DrawSphere(mid, 0.125f);
+
+        for (int i = 0; i < mines.Count; i++)
+        {
+            Gizmos.color = mines[i].color;
+            Handles.color = mines[i].color;
+            Handles.DrawAAConvexPolygon(mines[i].poligon.vertices.ToArray());
+        }
+
+        Gizmos.color = UnityEngine.Color.black;
+        for (int j = 0; j < mines.Count; j++)
+        {
+            for (int i = 0; i < mines[j].poligon.vertices.Count; i++)
+            {
+                Vector3 vertex1 = mines[j].poligon.vertices[i];
+                Vector3 vertex2 = mines[j].poligon.vertices[(i + 1) % mines[j].poligon.vertices.Count];
+
+                Gizmos.DrawLine(vertex1, vertex2);
+            }
+        }
+
 
         Gizmos.color = UnityEngine.Color.yellow;
-
-        for (int i = 0;i < vertex.Count; i++)
+        for (int i = 0; i < vertex.Count; i++)
         {
             Gizmos.DrawSphere(vertex[i], 0.25f);
         }
@@ -148,5 +156,144 @@ public struct Poligon
     public Poligon(List<Vector3> vertices)
     {
         this.vertices = vertices;
+    }
+}
+
+public class MinesTemp
+{
+    public Vector3 position;
+    public Poligon poligon;
+    public UnityEngine.Color color;
+
+    public MinesTemp(Vector3 position, Poligon poligon)
+    {
+        this.position = position;
+        this.poligon = poligon;
+        color = new UnityEngine.Color(Random.value, Random.value, Random.value, 1);
+    }
+}
+
+public class PolygonCutter
+{
+    public void CutPolygon(MinesTemp mine, Side cut)
+    {
+        List<Vector3> polygon1 = new List<Vector3>();
+        List<Vector3> polygon2 = new List<Vector3>();
+
+        List<Vector3> intersections = new List<Vector3>();
+
+        bool isFirstPolygon = true;
+
+
+        for (int i = 0; i < mine.poligon.vertices.Count; i++)
+        {
+            Vector3 p1 = mine.poligon.vertices[i];
+            Vector3 p2 = mine.poligon.vertices[(i + 1) % mine.poligon.vertices.Count];
+
+            if (isFirstPolygon)
+            {
+                polygon1.Add(p1);
+            }
+            else
+            {
+                polygon2.Add(p1);
+            }
+
+            Side side1 = new Side(p1, p2);
+            Side side2 = new Side(cut.start, cut.end);
+
+            if (DetectarInterseccion(side1, side2, out Vector3 intersection))
+            {
+                intersections.Add(intersection);
+
+                polygon1.Add(intersection);
+                polygon2.Add(intersection);
+
+                isFirstPolygon = !isFirstPolygon;
+            }
+        }
+
+        if (IsPointInPolygon(mine.position, new Poligon(polygon1)))
+        {
+            mine.poligon = new Poligon(polygon1);
+        }
+        else
+        {
+            mine.poligon = new Poligon(polygon2);
+        }
+    }
+
+    public static bool DetectarInterseccion(Side side1, Side side2, out Vector3 puntoInterseccion)
+    {
+        puntoInterseccion = new Vector3();
+
+        float denominator = (side1.start.x - side1.end.x) * (side2.start.z - side2.end.z) -
+            (side1.start.z - side1.end.z) * (side2.start.x - side2.end.x);
+
+        if (denominator != 0)
+        {
+            float t = ((side1.start.x - side2.start.x) * (side2.start.z - side2.end.z) - (side1.start.z - side2.start.z) * (side2.start.x - side2.end.x)) / denominator;
+            float u = ((side1.start.x - side2.start.x) * (side1.start.z - side1.end.z) - (side1.start.z - side2.start.z) * (side1.start.x - side1.end.x)) / denominator;
+
+            if (t >= 0 && t <= 1 && u >= 0 && u <= 1)
+            {
+                puntoInterseccion = new Vector3(side1.start.x + t * (side1.end.x - side1.start.x), 0, side1.start.z + t * (side1.end.z - side1.start.z));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool IsPointInPolygon(Vector3 point, Poligon polygon)
+    {
+        int intersectCount = 0;
+
+        for (int i = 0; i < polygon.vertices.Count; i++)
+        {
+            Vector3 vertex1 = polygon.vertices[i];
+            Vector3 vertex2 = polygon.vertices[(i + 1) % polygon.vertices.Count];
+
+            if (RayIntersectsSegment(point, vertex1, vertex2))
+            {
+                intersectCount++;
+            }
+        }
+
+        return (intersectCount % 2) == 1;
+    }
+
+    public bool RayIntersectsSegment(Vector3 point, Vector3 v1, Vector3 v2)
+    {
+        if (v1.z > v2.z)
+        {
+            Vector3 temp = v1;
+            v1 = v2;
+            v2 = temp;
+        }
+
+        if (point.z == v1.z || point.z == v2.z)
+        {
+            point.z += 0.0001f;
+        }
+
+        if (point.z < v1.z || point.z > v2.z)
+        {
+            return false;
+        }
+
+        if (point.x > Mathf.Max(v1.x, v2.x))
+        {
+            return false;
+        }
+
+        if (point.x < Mathf.Min(v1.x, v2.x))
+        {
+            return true;
+        }
+
+        float slope = (v2.x - v1.x) / (v2.z - v1.z);
+        float xIntersect = v1.x + (point.z - v1.z) * slope;
+
+        return point.x <= xIntersect;
     }
 }
