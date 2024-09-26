@@ -12,6 +12,8 @@ public sealed class MoveState : State
 
     private Inventory inventory;
 
+    bool isReturnHome = false;
+
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         BehaivioursAction result = new BehaivioursAction();
@@ -24,12 +26,18 @@ public sealed class MoveState : State
         {
             pathfinder = new AStarPathfinder<Node<Vector2Int>, Vector2Int>();
 
-            if (inventory.gold >= 15)
+            if (inventory.gold >= 15 || grapfView.mines.Count == 0 || grapfView.isAlert)
+            {
                 path = pathfinder.FindPath(currentNode, grapfView.urbanCenter, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+
+                if(grapfView.isAlert)
+                    isReturnHome = true;
+            }
             else
+            {
                 path = pathfinder.FindPath(currentNode, grapfView.mines[0].currentNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
-
-
+                isReturnHome = false;
+            }
         });
 
         return result;
@@ -70,11 +78,25 @@ public sealed class MoveState : State
 
         result.SetTransition(() =>
         {
+            if(grapfView.isAlert && !isReturnHome)
+            {
+                OnFlag?.Invoke(Flags.IsAlert);
+            }
+
+            if (!grapfView.isAlert && isReturnHome)
+            {
+                OnFlag?.Invoke(Flags.IsAlert);
+            }
+
             if (path.Count == 0)
             {
-                if (inventory.gold < 15)
+                if (inventory.gold < 15 && !grapfView.isAlert)
                 {
                     OnFlag?.Invoke(Flags.OnReadyToMine);
+                }
+                else
+                {
+                    OnFlag?.Invoke(Flags.IsInHome);
                 }
             }
 

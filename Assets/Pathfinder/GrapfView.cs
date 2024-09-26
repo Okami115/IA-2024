@@ -22,6 +22,7 @@ public class GrapfView : MonoBehaviour
     public List<Caravana> caravanas;
 
     [Header("For Miners")]
+    public int currentGold;
     public List<Mine<Vector2Int>> mines;
     public List<Traveler> travelers;
 
@@ -31,6 +32,11 @@ public class GrapfView : MonoBehaviour
     public GameObject prefab2;
     public int OffsetPublic;
     public bool isAlert;
+
+    [Header("UI")]
+    [SerializeField] private GameObject ui;
+    [SerializeField] private Button Alarm;
+
 
     [Header("Menu")]
     [SerializeField] private GameObject panel;
@@ -48,6 +54,7 @@ public class GrapfView : MonoBehaviour
     private void Start()
     {
         play.onClick.AddListener(OnPlaySimulation);
+        Alarm.onClick.AddListener(OnAlert);
         mines = new List<Mine<Vector2Int>>();
         caravanas = new List<Caravana>();
         travelers = new List<Traveler>();
@@ -59,6 +66,7 @@ public class GrapfView : MonoBehaviour
         OffsetPublic = int.Parse(Offset.text);
 
         panel.SetActive(false);
+        ui.SetActive(true);
         grapf = new Vector2IntGrapf<Node<Vector2Int>>(int.Parse(inputX.text), int.Parse(inputY.text),
             int.Parse(Offset.text), typeOfPathFinder);
 
@@ -100,6 +108,10 @@ public class GrapfView : MonoBehaviour
         isRunning = true;
     }
 
+    private void OnAlert()
+    {
+        isAlert = !isAlert; 
+    }
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying || !isRunning)

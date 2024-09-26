@@ -27,11 +27,10 @@ public class Caravana : MonoBehaviour
 
     void StartPathFinder(int startIndexNode, int endIndexNode)
     {
-        StopAllCoroutines();
         currentNode = grapfView.urbanCenter;
 
         fsm.AddBehaviour<MoveCaravanaState>(Behaivours.Move,
-            onEnterParameters: () => { return new object[] { currentNode, targetNode, grapfView }; },
+            onEnterParameters: () => { return new object[] { currentNode, grapfView }; },
             onTickParameters: () => { return new object[] { transform, speed, this }; });
 
         fsm.AddBehaviour<WaitOrdersState>(Behaivours.Wait,
@@ -43,10 +42,14 @@ public class Caravana : MonoBehaviour
             onTickParameters: () => { return new object[] { this }; });
 
 
-        fsm.SetTrasnsition(Behaivours.Wait, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
-        fsm.SetTrasnsition(Behaivours.GiveFood, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
         fsm.SetTrasnsition(Behaivours.Move, Flags.OnWaitingOrders, Behaivours.Wait, () => { Debug.Log("*Procede a esperar*"); });
         fsm.SetTrasnsition(Behaivours.Move, Flags.OnReadyToGiveFood, Behaivours.GiveFood, () => { Debug.Log("*Procede a dar comida*"); });
+        fsm.SetTrasnsition(Behaivours.Move, Flags.IsAlert, Behaivours.Move, () => { Debug.Log("*Procede a correr*"); });
+
+        fsm.SetTrasnsition(Behaivours.GiveFood, Flags.IsAlert, Behaivours.Move, () => { Debug.Log("*Procede a correr*"); });
+        fsm.SetTrasnsition(Behaivours.GiveFood, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
+
+        fsm.SetTrasnsition(Behaivours.Wait, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
 
         Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
 

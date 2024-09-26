@@ -53,6 +53,7 @@ public sealed class MiningState : State
         float minningSpeed = Convert.ToSingle(parameters[0]);
         float deltaTime = Convert.ToSingle(parameters[1]);
         List<Mine<Vector2Int>> mines = parameters[2] as List<Mine<Vector2Int>>;
+        GrapfView grapfView = parameters[3] as GrapfView;
 
         BehaivioursAction result = new BehaivioursAction();
 
@@ -80,6 +81,11 @@ public sealed class MiningState : State
 
         result.SetTransition(() =>
         {
+            if(grapfView.isAlert)
+            {
+                OnFlag.Invoke(Flags.IsAlert);
+            }
+
             if (mine.currentFood == 0)
             {
                 Debug.Log("No more food");

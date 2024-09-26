@@ -1,24 +1,22 @@
 ﻿using BehaivioursActions;
 using UnityEngine;
 
-public sealed class WaitOrdersState : State
+public sealed class WaitMinesState : State
 {
     private GrapfView grapfView;
-    private Caravana caravana;
-
-    private bool onTargeSet;
+    private Traveler traveler;
 
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         grapfView = parameters[0] as GrapfView;
-        caravana = parameters[1] as Caravana;
+        traveler = parameters[1] as Traveler;
 
         BehaivioursAction result = new BehaivioursAction();
 
         result.AddMultiThreadsBehaviours(0, () =>
         {
-            caravana.food = grapfView.foodForCaravana;
-            onTargeSet = false;
+            grapfView.currentGold += traveler.inventory.gold;
+            traveler.inventory.gold = 0;
         });
 
         return result;
@@ -35,21 +33,13 @@ public sealed class WaitOrdersState : State
 
         result.AddMultiThreadsBehaviours(0, () =>
         {
-            foreach (Mine<Vector2Int> mine in grapfView.mines)
-            {
-                if (mine.currentFood <= 0 && mine.miners.Count > 0)
-                {
-                    onTargeSet = true;
-                    break;
-                }
-            }
         });
 
         result.SetTransition(() =>
         {
-            if (onTargeSet && !grapfView.isAlert)
+            if (!grapfView.isAlert)
             {
-                OnFlag?.Invoke(Flags.OnReadyToTravel);
+                OnFlag?.Invoke(Flags.OnReadyToBack);
             }
         });
         return result;

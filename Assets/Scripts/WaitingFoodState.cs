@@ -34,10 +34,17 @@ public sealed class WaitingFoodState : State
 
     public override BehaivioursAction GetTickBehaviours(params object[] parameters)
     {
+        GrapfView grapfView = parameters[0] as GrapfView;
+
         BehaivioursAction result = new BehaivioursAction();
 
         result.SetTransition(() =>
         {
+            if(grapfView.isAlert)
+            {
+                OnFlag?.Invoke(Flags.IsAlert);
+            }
+
             if (mine.currentFood > 0)
             {
                 Debug.Log("*Le tiran un pan*");

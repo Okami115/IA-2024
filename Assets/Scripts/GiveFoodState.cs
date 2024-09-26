@@ -43,11 +43,11 @@ public sealed class GiveFoodState : State
         {
             mine.currentFood = caravana.food;
             caravana.food = 0;
-            caravana.targetNode = grapfView.urbanCenter;
         });
 
         result.SetTransition(() =>
         {
+            caravana.targetNode = grapfView.urbanCenter;
             OnFlag?.Invoke(Flags.OnReadyToTravel);
         });
         return result;
