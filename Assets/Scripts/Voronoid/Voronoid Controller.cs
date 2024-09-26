@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
-using System.Drawing;
 using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class VoronoidController : MonoBehaviour
 {
     private List<Vector3> nodes = new List<Vector3>();
-    private List<MinesTemp> mines = new List<MinesTemp>();
+    [SerializeField] private List<MinesTemp> mines = new List<MinesTemp>();
     Vector3 mid;
 
     List<Vector3> vertex = new List<Vector3>();
@@ -32,20 +33,20 @@ public class VoronoidController : MonoBehaviour
             }
         }
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 25; i++)
         {
-            mines.Add(new MinesTemp(nodes[Random.Range(0, nodes.Count)], new Poligon(vertex)));
+            mines.Add(new MinesTemp(nodes[UnityEngine.Random.Range(0, nodes.Count)], new Poligon(vertex)));
         }
 
+        List<MinesTemp> tempMines = new List<MinesTemp>(mines);
 
         for (int i = 0; i < mines.Count; i++)
         {
-            for (int j = 0; j < mines.Count; j++)
+            tempMines.Sort((mine1, mine2) => Vector3.Distance(mine2.position, mines[i].position).CompareTo(Vector3.Distance(mine1.position, mines[i].position)));
+
+            for (int j = 0; j < tempMines.Count; j++)
             {
-                if (j != i)
-                {
-                    GetSide(mines[i], mines[j]);
-                }
+                GetSide(mines[i], tempMines[j]);
             }
         }
 
@@ -53,13 +54,13 @@ public class VoronoidController : MonoBehaviour
 
     public void GetSide(MinesTemp A, MinesTemp B)
     {
-        Vector3 mid = new Vector3((A.position.x + B.position.x) / 2, (A.position.y + B.position.y) / 2, (A.position.z + B.position.z) / 2);
+        Vector3 mid = new Vector3((A.position.x + B.position.x) / 2.0f, (A.position.y + B.position.y) / 2, (A.position.z + B.position.z) / 2.0f);
 
         Vector3 connector = A.position - B.position;
 
         Vector3 direction = new Vector3(-connector.z, 0, connector.x).normalized;
 
-        Side outCut = new Side(mid - direction * 20 / 2, mid + direction * 20 / 2);
+        Side outCut = new Side(mid - direction * 100.0f, mid + direction * 100.0f);
 
         aux.Add(outCut);
 
@@ -128,6 +129,12 @@ public class VoronoidController : MonoBehaviour
             }
         }
 
+        Gizmos.color = UnityEngine.Color.cyan;
+        for (int i = 0; i < aux.Count; i++)
+        {
+            //Gizmos.DrawLine(aux[i].start, aux[i].end);
+        }
+
 
         Gizmos.color = UnityEngine.Color.yellow;
         for (int i = 0; i < vertex.Count; i++)
@@ -149,6 +156,7 @@ public struct Side
     }
 }
 
+[Serializable]
 public struct Poligon
 {
     public List<Vector3> vertices;
@@ -159,6 +167,7 @@ public struct Poligon
     }
 }
 
+[Serializable]
 public class MinesTemp
 {
     public Vector3 position;
@@ -169,7 +178,7 @@ public class MinesTemp
     {
         this.position = position;
         this.poligon = poligon;
-        color = new UnityEngine.Color(Random.value, Random.value, Random.value, 1);
+        color = new UnityEngine.Color(UnityEngine.Random.value, Random.value, Random.value, 1);
     }
 }
 
@@ -204,22 +213,38 @@ public class PolygonCutter
 
             if (DetectarInterseccion(side1, side2, out Vector3 intersection))
             {
-                intersections.Add(intersection);
+                if (!intersections.Contains(intersection) && intersections.Count < 2)
+                {
+                    intersections.Add(intersection);
 
-                polygon1.Add(intersection);
-                polygon2.Add(intersection);
+                    polygon1.Add(intersection);
+                    polygon2.Add(intersection);
 
-                isFirstPolygon = !isFirstPolygon;
+                    isFirstPolygon = !isFirstPolygon;
+                }
             }
         }
 
-        if (IsPointInPolygon(mine.position, new Poligon(polygon1)))
+        if (intersections.Count == 2)
         {
-            mine.poligon = new Poligon(polygon1);
+
+            if (IsPointInPolygon(mine.position, new Poligon(polygon1)))
+            {
+
+                mine.poligon = new Poligon(polygon1);
+            }
+            else if (IsPointInPolygon(mine.position, new Poligon(polygon2)))
+            {
+                mine.poligon = new Poligon(polygon2);
+            }
+            else
+            {
+                Debug.LogError("POR FAVOR NO SALTES");
+            }
         }
         else
         {
-            mine.poligon = new Poligon(polygon2);
+            Debug.LogWarning($"No se encontraron intersecciones o el polígono no fue cortado correctamente. {intersections.Count}");
         }
     }
 
@@ -271,22 +296,22 @@ public class PolygonCutter
             v2 = temp;
         }
 
-        if (point.z == v1.z || point.z == v2.z)
+        if (point.z.Equals(v1.z) || point.z.Equals(v2.z))
         {
             point.z += 0.0001f;
         }
 
-        if (point.z < v1.z || point.z > v2.z)
+        if (point.z <= v1.z || point.z >= v2.z)
         {
             return false;
         }
 
-        if (point.x > Mathf.Max(v1.x, v2.x))
+        if (point.x >= Mathf.Max(v1.x, v2.x))
         {
             return false;
         }
 
-        if (point.x < Mathf.Min(v1.x, v2.x))
+        if (point.x <= Mathf.Min(v1.x, v2.x))
         {
             return true;
         }
@@ -294,6 +319,6 @@ public class PolygonCutter
         float slope = (v2.x - v1.x) / (v2.z - v1.z);
         float xIntersect = v1.x + (point.z - v1.z) * slope;
 
-        return point.x <= xIntersect;
+        return (point.x < xIntersect || point.x.Equals(xIntersect));
     }
 }
