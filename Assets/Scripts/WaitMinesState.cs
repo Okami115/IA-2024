@@ -31,9 +31,6 @@ public sealed class WaitMinesState : State
     {
         BehaivioursAction result = new BehaivioursAction();
 
-        result.AddMultiThreadsBehaviours(0, () =>
-        {
-        });
 
         result.SetTransition(() =>
         {

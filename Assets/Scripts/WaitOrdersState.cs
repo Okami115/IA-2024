@@ -35,7 +35,7 @@ public sealed class WaitOrdersState : State
 
         result.AddMultiThreadsBehaviours(0, () =>
         {
-            foreach (Mine<Vector2Int> mine in grapfView.mines)
+            foreach (Mine<Vector3> mine in grapfView.mines)
             {
                 if (mine.currentFood <= 0 && mine.miners.Count > 0)
                 {

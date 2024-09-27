@@ -4,11 +4,11 @@ using UnityEngine;
 
 public sealed class WaitingFoodState : State
 {
-    private Mine<Vector2Int> mine;
+    private Mine<Vector3> mine;
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
-        Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
-        List<Mine<Vector2Int>> mines = parameters[1] as List<Mine<Vector2Int>>;
+        Node<Vector3> currentNode = parameters[0] as Node<Vector3>;
+        List<Mine<Vector3>> mines = parameters[1] as List<Mine<Vector3>>;
 
         BehaivioursAction result = new BehaivioursAction();
         result.AddMainThreadBehaviours(0, () =>

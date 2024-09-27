@@ -5,7 +5,7 @@ public class Traveler : MonoBehaviour
 {
     public GrapfView grapfView;
 
-    public Node<Vector2Int> currentNode;
+    public Node<Vector3> currentNode;
 
     [SerializeField] public Inventory inventory;
 
@@ -31,7 +31,6 @@ public class Traveler : MonoBehaviour
     void StartPathFinder(int startIndexNode, int endIndexNode)
     {
         isRunning = true;
-        StopAllCoroutines();
         currentNode = grapfView.urbanCenter;
 
         fsm.AddBehaviour<MoveState>(Behaivours.Move,
@@ -63,7 +62,7 @@ public class Traveler : MonoBehaviour
 
         fsm.SetTrasnsition(Behaivours.Wait, Flags.OnReadyToBack, Behaivours.Move, () => { Debug.Log("*Procede a caminar*"); });
 
-        Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
+        Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y, grapfView.OffsetPublic * currentNode.GetCoordinate().z);
 
         transform.position = aux;
 
@@ -82,7 +81,7 @@ public class Traveler : MonoBehaviour
             return;
 
 
-        foreach (Node<Vector2Int> node in grapfView.grapf.nodes)
+        foreach (Node<Vector3> node in grapfView.grapf.nodes)
         {
             if(node.Equals(startNode))
                 Gizmos.color = Color.blue;

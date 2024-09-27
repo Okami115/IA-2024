@@ -5,11 +5,11 @@ public sealed class GiveFoodState : State
 {
     private GrapfView grapfView;
 
-    private Mine<Vector2Int> mine;
+    private Mine<Vector3> mine;
 
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
-        Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
+        Node<Vector3> currentNode = parameters[0] as Node<Vector3>;
         grapfView = parameters[1] as GrapfView;
 
         BehaivioursAction result = new BehaivioursAction();

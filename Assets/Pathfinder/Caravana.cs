@@ -4,9 +4,9 @@ public class Caravana : MonoBehaviour
 {
     public GrapfView grapfView;
 
-    public Node<Vector2Int> currentNode;
+    public Node<Vector3> currentNode;
 
-    public Node<Vector2Int> targetNode;
+    public Node<Vector3> targetNode;
 
     public float speed;
     public int food;
@@ -51,7 +51,7 @@ public class Caravana : MonoBehaviour
 
         fsm.SetTrasnsition(Behaivours.Wait, Flags.OnReadyToTravel, Behaivours.Move, () => { Debug.Log("*Procede a viajar*"); });
 
-        Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y);
+        Vector3 aux = new Vector3(grapfView.OffsetPublic * currentNode.GetCoordinate().x, grapfView.OffsetPublic * currentNode.GetCoordinate().y, grapfView.OffsetPublic * currentNode.GetCoordinate().z);
 
         transform.position = aux;
 
