@@ -6,7 +6,7 @@ public class PositionComponent : ECSComponent
     public float Y;
     public float Z;
 
-    public PositionComponent(float X, float Y, float Z) 
+    public PositionComponent(float X, float Y, float Z)
     {
         this.X = X;
         this.Y = Y;

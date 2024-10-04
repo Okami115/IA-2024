@@ -1,7 +1,7 @@
+using BehaivioursActions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BehaivioursActions;
 
 public class FSM<EnumState, EnumFlag>
     where EnumState : Enum
@@ -107,7 +107,7 @@ public class FSM<EnumState, EnumFlag>
         {
             Task multithreadeableBehaviours = new Task(() =>
             {
-                if(behaivioursAction.MultiThreadBehaviours != null)
+                if (behaivioursAction.MultiThreadBehaviours != null)
                 {
                     if (behaivioursAction.MultiThreadBehaviours.ContainsKey(executionOrder))
                     {

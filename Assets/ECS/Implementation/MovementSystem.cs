@@ -17,9 +17,9 @@ public sealed class MovementSystem : ECSSystem
 
     protected override void PreExecute(float deltaTime)
     {
-        positionComponents??= ECSManager.GetComponents<PositionComponent>();
-        velocityComponents??= ECSManager.GetComponents<VelocityComponent>();
-        queryedEntities??= ECSManager.GetEntitiesWhitComponentTypes(typeof(PositionComponent), typeof(VelocityComponent));
+        positionComponents ??= ECSManager.GetComponents<PositionComponent>();
+        velocityComponents ??= ECSManager.GetComponents<VelocityComponent>();
+        queryedEntities ??= ECSManager.GetEntitiesWhitComponentTypes(typeof(PositionComponent), typeof(VelocityComponent));
     }
 
     protected override void Execute(float deltaTime)

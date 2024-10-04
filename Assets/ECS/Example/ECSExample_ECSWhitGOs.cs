@@ -36,7 +36,7 @@ public class ECSExample_ECSWhitGOs : MonoBehaviour
         {
             PositionComponent position = ECSManager.GetComponent<PositionComponent>(entity.Key);
             RotationComponent rotation = ECSManager.GetComponent<RotationComponent>(entity.Key);
-            entity.Value.transform.SetPositionAndRotation(new Vector3(position.X, position.Y, position.Z), 
+            entity.Value.transform.SetPositionAndRotation(new Vector3(position.X, position.Y, position.Z),
                 Quaternion.Euler(rotation.X, rotation.Y, rotation.Z));
         }
     }

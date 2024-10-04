@@ -5,31 +5,47 @@ using UnityEngine;
 
 public sealed class MoveState : State
 {
-    private Pathfinder<Node<Vector2Int>, Vector2Int> pathfinder;
-    private List<Node<Vector2Int>> path = new List<Node<Vector2Int>>();
+    private Pathfinder<Node<Vector3>, Vector3> pathfinder;
+    private List<Node<Vector3>> path = new List<Node<Vector3>>();
 
     private GrapfView grapfView;
 
     private Inventory inventory;
 
+    bool isReturnHome = false;
+
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
         BehaivioursAction result = new BehaivioursAction();
 
-        Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
+        Node<Vector3> currentNode = parameters[0] as Node<Vector3>;
         grapfView = parameters[1] as GrapfView;
         inventory = parameters[2] as Inventory;
+        PolygonCutter polygonCutter = new PolygonCutter();
 
         result.AddMultiThreadsBehaviours(0, () =>
         {
-            pathfinder = new AStarPathfinder<Node<Vector2Int>, Vector2Int>();
+            pathfinder = new AStarPathfinder<Node<Vector3>, Vector3>();
 
-            if(inventory.gold >= 15)
-                path = pathfinder.FindPath(currentNode, grapfView.urbanCenter, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+            if (inventory.gold >= 15 || grapfView.mines.Count == 0 || grapfView.isAlert)
+            {
+                path = pathfinder.FindPath(currentNode, grapfView.urbanCenter, grapfView.grapf.nodes) as List<Node<Vector3>>;
+
+                if(grapfView.isAlert)
+                    isReturnHome = true;
+            }
             else
-                path = pathfinder.FindPath(currentNode, grapfView.mines[0].currentNode, grapfView.grapf.nodes) as List<Node<Vector2Int>>;
+            {
 
-            
+                for (int i = 0; i < grapfView.mines.Count; i++)
+                {
+                    if(polygonCutter.IsPointInPolygon(currentNode.GetCoordinate(), grapfView.mines[i].poligon))
+                    {
+                        path = pathfinder.FindPath(currentNode, grapfView.mines[i].currentNode, grapfView.grapf.nodes) as List<Node<Vector3>>;
+                        isReturnHome = false;
+                    }
+                }
+            }
         });
 
         return result;
@@ -51,15 +67,16 @@ public sealed class MoveState : State
 
         result.AddMainThreadBehaviours(0, () =>
         {
-            if(path.Count > 0)
+            if (path.Count > 0)
             {
-                Vector3 aux = new Vector3(OffsetPublic * path[0].GetCoordinate().x, OffsetPublic * path[0].GetCoordinate().y);
+                Vector3 aux = new Vector3(OffsetPublic * path[0].GetCoordinate().x, OffsetPublic * path[0].GetCoordinate().y, OffsetPublic * path[0].GetCoordinate().z);
 
                 transform.position += (aux - transform.position).normalized * speed * Time.deltaTime;
 
                 float dist = Vector3.Distance(transform.position, aux);
                 float minDist = 0.1f;
-
+                
+                //////
                 if (dist < minDist)
                 {
                     traveler.currentNode = path[0];
@@ -70,11 +87,25 @@ public sealed class MoveState : State
 
         result.SetTransition(() =>
         {
+            if(grapfView.isAlert && !isReturnHome)
+            {
+                OnFlag?.Invoke(Flags.IsAlert);
+            }
+
+            if (!grapfView.isAlert && isReturnHome)
+            {
+                OnFlag?.Invoke(Flags.IsAlert);
+            }
+
             if (path.Count == 0)
             {
-                if(inventory.gold < 15)
+                if (inventory.gold < 15 && !grapfView.isAlert)
                 {
                     OnFlag?.Invoke(Flags.OnReadyToMine);
+                }
+                else
+                {
+                    OnFlag?.Invoke(Flags.IsInHome);
                 }
             }
 

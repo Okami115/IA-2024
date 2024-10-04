@@ -14,10 +14,10 @@ public class Boid : MonoBehaviour
     private Func<Boid, Vector3> Separation;
     private Func<Boid, Vector3> Direction;
 
-    public void Init(Func<Boid, Vector3> Alignment, 
-                     Func<Boid, Vector3> Cohesion, 
-                     Func<Boid, Vector3> Separation, 
-                     Func<Boid, Vector3> Direction) 
+    public void Init(Func<Boid, Vector3> Alignment,
+                     Func<Boid, Vector3> Cohesion,
+                     Func<Boid, Vector3> Separation,
+                     Func<Boid, Vector3> Direction)
     {
         this.Alignment = Alignment;
         this.Cohesion = Cohesion;

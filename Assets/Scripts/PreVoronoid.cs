@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Net;
 using UnityEngine;
 
 public class PreVoronoid : MonoBehaviour
@@ -8,7 +5,7 @@ public class PreVoronoid : MonoBehaviour
     public int gridWidth = 10;
     public int gridHeight = 10;
 
-    public Vector2Int[] generadores;
+    public Vector3[] generadores;
 
     public Color[] colores;
 
@@ -31,14 +28,14 @@ public class PreVoronoid : MonoBehaviour
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                Vector2Int cellPosition = new Vector2Int(x, y);
+                Vector3 cellPosition = new Vector3(x, y);
 
                 int closestGeneratorIndex = 0;
                 float minDistance = float.MaxValue;
 
                 for (int i = 0; i < generadores.Length; i++)
                 {
-                    float distance = Vector2Int.Distance(cellPosition, generadores[i]);
+                    float distance = Vector3.Distance(cellPosition, generadores[i]);
                     if (distance < minDistance)
                     {
                         minDistance = distance;

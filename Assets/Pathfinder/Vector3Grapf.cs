@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Vector2IntGrapf<NodeType>
-    where NodeType : INode<UnityEngine.Vector2Int>, INode, new()
+public class Vector3Grapf<NodeType>
+    where NodeType : INode<UnityEngine.Vector3>, INode, new()
 {
     public List<NodeType> nodes = new List<NodeType>();
 
     private TypeOfPathFinder typeOfPathFinder;
     private int offset;
 
-    public Vector2IntGrapf(int x, int y, int offset, TypeOfPathFinder typeOfPathFinder)
+    public Vector3Grapf(int x, int y, int offset, TypeOfPathFinder typeOfPathFinder)
     {
         this.typeOfPathFinder = typeOfPathFinder;
         this.offset = offset;
@@ -20,8 +20,8 @@ public class Vector2IntGrapf<NodeType>
             for (int j = 0; j < y; j++)
             {
                 NodeType node = new NodeType();
-                node.SetCoordinate(new UnityEngine.Vector2Int(i, j));
-                node.SetDistanceMethod((Vector2Int other) => { return (int)Vector2Int.Distance(node.GetCoordinate(), other); });
+                node.SetCoordinate(new UnityEngine.Vector3(i, 0, j));
+                node.SetDistanceMethod((Vector3 other) => { return (int)Vector3.Distance(node.GetCoordinate(), other); });
                 nodes.Add(node);
             }
         }
@@ -37,16 +37,16 @@ public class Vector2IntGrapf<NodeType>
         foreach (NodeType neighbor in nodes)
         {
             if (neighbor.GetCoordinate().x == currentNode.GetCoordinate().x &&
-                Math.Abs(neighbor.GetCoordinate().y - currentNode.GetCoordinate().y) == 1)
+                Math.Abs(neighbor.GetCoordinate().z - currentNode.GetCoordinate().z) == 1)
                 currentNode.AddNeighbor(neighbor);
 
-            else if (neighbor.GetCoordinate().y == currentNode.GetCoordinate().y &&
+            else if (neighbor.GetCoordinate().z == currentNode.GetCoordinate().z &&
                 Math.Abs(neighbor.GetCoordinate().x - currentNode.GetCoordinate().x) == 1)
                 currentNode.AddNeighbor(neighbor);
 
             if (typeOfPathFinder == TypeOfPathFinder.DijstraPathfinder || typeOfPathFinder == TypeOfPathFinder.AStarPathfinder)
             {
-                if (Math.Abs(neighbor.GetCoordinate().y - currentNode.GetCoordinate().y) == 1 && Math.Abs(neighbor.GetCoordinate().x - currentNode.GetCoordinate().x) == 1)
+                if (Math.Abs(neighbor.GetCoordinate().z - currentNode.GetCoordinate().z) == 1 && Math.Abs(neighbor.GetCoordinate().x - currentNode.GetCoordinate().x) == 1)
                     currentNode.AddNeighbor(neighbor);
             }
         }

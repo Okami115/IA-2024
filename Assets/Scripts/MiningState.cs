@@ -5,7 +5,7 @@ using UnityEngine;
 
 public sealed class MiningState : State
 {
-    private Mine<Vector2Int> mine;
+    private Mine<Vector3> mine;
     private Inventory inventory;
     Traveler miner;
 
@@ -13,14 +13,14 @@ public sealed class MiningState : State
     int counter = 0;
     public override BehaivioursAction GetOnEnterBehaviours(params object[] parameters)
     {
-        Node<Vector2Int> currentNode = parameters[0] as Node<Vector2Int>;
+        Node<Vector3> currentNode = parameters[0] as Node<Vector3>;
         inventory = parameters[1] as Inventory;
-        List<Mine<Vector2Int>> mines = parameters[2] as List<Mine<Vector2Int>>;
+        List<Mine<Vector3>> mines = parameters[2] as List<Mine<Vector3>>;
         miner = parameters[3] as Traveler;
 
         BehaivioursAction result = new BehaivioursAction();
         result.AddMainThreadBehaviours(0, () =>
-        { 
+        {
             for (int i = 0; i < mines.Count; i++)
             {
                 if (mines[i].currentNode == currentNode)
@@ -52,13 +52,14 @@ public sealed class MiningState : State
     {
         float minningSpeed = Convert.ToSingle(parameters[0]);
         float deltaTime = Convert.ToSingle(parameters[1]);
-        List<Mine<Vector2Int>> mines = parameters[2] as List<Mine<Vector2Int>>;
+        List<Mine<Vector3>> mines = parameters[2] as List<Mine<Vector3>>;
+        GrapfView grapfView = parameters[3] as GrapfView;
 
         BehaivioursAction result = new BehaivioursAction();
 
-        result.AddMultiThreadsBehaviours(0, () => 
+        result.AddMultiThreadsBehaviours(0, () =>
         {
-            if(mine.currentGold > 0)
+            if (mine.currentGold > 0)
             {
                 time += deltaTime;
 
@@ -70,17 +71,22 @@ public sealed class MiningState : State
                     time = 0;
                 }
 
-                if(counter >= 3)
+                if (counter >= 3)
                 {
                     mine.currentFood--;
                     counter = 0;
                 }
-            }                
+            }
         });
 
         result.SetTransition(() =>
         {
-            if(mine.currentFood == 0)
+            if(grapfView.isAlert)
+            {
+                OnFlag.Invoke(Flags.IsAlert);
+            }
+
+            if (mine.currentFood == 0)
             {
                 Debug.Log("No more food");
                 OnFlag?.Invoke(Flags.OnReadyToEat);
@@ -91,6 +97,7 @@ public sealed class MiningState : State
                 Debug.Log("No more gold");
                 OnFlag?.Invoke(Flags.OnReadyToBack);
                 mines.Remove(mine);
+                grapfView.Vcontroller.RunVoronoid();
             }
 
             if (inventory.gold >= 15)
