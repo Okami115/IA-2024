@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Genome
 {
@@ -154,7 +153,6 @@ public class GeneticAlgorithm
 	{
 		return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
 	}
-
 
 	public Genome RouletteSelection()
 	{

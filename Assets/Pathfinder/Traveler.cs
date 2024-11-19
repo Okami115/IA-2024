@@ -46,6 +46,7 @@ public class Traveler : MonoBehaviour
             onEnterParameters: () => { return new object[] { currentNode, grapfView.mines }; },
             onTickParameters: () => { return new object[] { grapfView }; });
 
+
         fsm.AddBehaviour<WaitMinesState>(Behaivours.Wait,
             onEnterParameters: () => { return new object[] { grapfView, this }; });
 
