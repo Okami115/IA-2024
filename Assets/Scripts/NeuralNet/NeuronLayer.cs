@@ -1,13 +1,15 @@
 ﻿
+using System;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class NeuronLayer
 {
-	private Neuron[] neurons;
+	public Neuron[] neurons;
 	private float[] outputs;
-	private int totalWeights = 0;
-	private int inputsCount = 0;
+	public int totalWeights = 0;
+	public int inputsCount = 0;
 	private float bias = 1;
 	private	float p = 0.5f;
 
@@ -34,6 +36,41 @@ public class NeuronLayer
 
 		SetNeuronsCount(neuronsCount);
 	}
+	
+	public NeuronLayer(byte[] data, ref int output)
+	{
+		int length = BitConverter.ToInt32(data, output);
+		output += sizeof(int);
+		neurons = new Neuron[length];
+		for (int i = 0; i < length; i++)
+		{
+			neurons[i] = new Neuron(data, ref output);
+		}
+
+		bias = BitConverter.ToSingle(data, output);
+		output += sizeof(float);
+		p = BitConverter.ToSingle(data, output);
+		output += sizeof(float);
+ 
+	}
+	
+	public byte[] Serialize()
+	{
+		List<byte> bytes = new List<byte>();
+
+		bytes.AddRange(BitConverter.GetBytes(neurons.Length));
+
+		foreach (var neuron in neurons)
+		{
+			bytes.AddRange(neuron.Serialize());
+		}
+
+		bytes.AddRange(BitConverter.GetBytes(bias));
+		bytes.AddRange(BitConverter.GetBytes(p));
+
+
+		return bytes.ToArray();
+	}
 
 	void SetNeuronsCount(int neuronsCount)
 	{
@@ -41,8 +78,8 @@ public class NeuronLayer
 
 		for (int i = 0; i < neurons.Length; i++)
 		{
-			neurons[i] = new Neuron(inputsCount + 1, bias, p);
-			totalWeights += inputsCount + 1;
+			neurons[i] = new Neuron(inputsCount, bias, p);
+			totalWeights += inputsCount ;
 		}
 
 		outputs = new float[neurons.Length];
@@ -75,6 +112,18 @@ public class NeuronLayer
 		}
 
 		return weights;
+	}	
+	public int GetWeightCount()
+	{
+
+		int id = 0;
+
+		foreach (var neuron in neurons)
+		{
+			id  += neuron.GetWeights().Length;
+		}
+
+		return id;
 	}
 
 	public float[] Synapsis(float[] inputs)

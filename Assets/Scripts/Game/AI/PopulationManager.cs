@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class PopulationManager : MonoBehaviour
+public partial class PopulationManager : MonoBehaviour
 {
     public GameObject TankPrefab;
     public GameObject MinePrefab;
@@ -27,7 +27,7 @@ public class PopulationManager : MonoBehaviour
     public float P = 0.5f;
 
 
-    GeneticAlgorithm genAlg;
+    //GeneticAlgorithm genAlg;
 
     List<Tank> populationGOs = new List<Tank>();
     List<Genome> population = new List<Genome>();
@@ -118,7 +118,7 @@ public class PopulationManager : MonoBehaviour
     public void StartSimulation()
     {
         // Create and confiugre the Genetic Algorithm
-        genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate);
+        //genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate);
 
         GenerateInitialPopulation();
         CreateMines();
@@ -200,22 +200,22 @@ public class PopulationManager : MonoBehaviour
         worstFitness = getWorstFitness();
 
         // Evolve each genome and create a new array of genomes
-        Genome[] newGenomes = genAlg.Epoch(population.ToArray());
+        //Genome[] newGenomes = genAlg.Epoch(population.ToArray());
 
         // Clear current population
         population.Clear();
 
         // Add new population
-        population.AddRange(newGenomes);
+        //population.AddRange(newGenomes);
 
         // Set the new genomes as each NeuralNetwork weights
         for (int i = 0; i < PopulationCount; i++)
         {
             NeuralNetwork brain = brains[i];
 
-            brain.SetWeights(newGenomes[i].genome);
+            //brain.SetWeights(newGenomes[i].genome);
 
-            populationGOs[i].SetBrain(newGenomes[i], brain);
+            //populationGOs[i].SetBrain(newGenomes[i], brain);
             populationGOs[i].transform.position = GetRandomPos();
             populationGOs[i].transform.rotation = GetRandomRot();
         }

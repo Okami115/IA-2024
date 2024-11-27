@@ -1,53 +1,83 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 public class Genome
 {
-	public float[] genome;
-	public float fitness = 0;
+    public float[] genome;
+    public float fitness = 0;
 
-	public Genome(float[] genes)
-	{
-		this.genome = genes;
-		fitness = 0;
-	}
+    public Genome(float[] genes)
+    {
+        this.genome = genes;
+        fitness = 0;
+    } 
+    public Genome(byte[] data,ref int output)
+    {
+        int genomeLength = BitConverter.ToInt32(data, output);
+        output += sizeof(int);
+        
+        genome = new float[genomeLength];
+        for (int i = 0; i < genomeLength; i++)
+        {
+            genome[i] = BitConverter.ToSingle(data, output);
+            output += sizeof(float);
+        }
+        
+        fitness = BitConverter.ToSingle(data, output);
+        output += sizeof(float);
+        
+    }
+    public byte[] Serialize()
+    {
+        List<byte> bytes = new List<byte>();
 
-	public Genome(int genesCount)
-	{
+        bytes.AddRange(BitConverter.GetBytes(genome.Length));
+
+        foreach (float gene in genome)
+        {
+            bytes.AddRange(BitConverter.GetBytes(gene));
+        }
+        
+        bytes.AddRange(BitConverter.GetBytes(fitness));
+
+        return bytes.ToArray();
+    }
+    public Genome(int genesCount)
+    {
         genome = new float[genesCount];
-
+        Random rand = new Random();
         for (int j = 0; j < genesCount; j++)
-            genome[j] = Random.Range(-1.0f, 1.0f);
+            genome[j] = (float)(rand.NextDouble() * 2 - 1);
 
         fitness = 0;
-	}
+    }
 
     public Genome()
     {
         fitness = 0;
     }
-
 }
 
-public class GeneticAlgorithm 
+public static class GeneticAlgorithm
 {
-	List<Genome> population = new List<Genome>();
-	List<Genome> newPopulation = new List<Genome>();
+    private static Random random = new Random();
 
-	float totalFitness;
+    enum EvolutionType
+    {
+        None = 0,
+        AddNeurons,
+        AddLayer
+    }
 
-	int eliteCount = 0;
-	float mutationChance = 0.0f;
-	float mutationRate = 0.0f;
+    public static List<Genome> population = new List<Genome>();
+    static List<Genome> newPopulation = new List<Genome>();
 
-	public GeneticAlgorithm(int eliteCount, float mutationChance, float mutationRate)
-	{
-		this.eliteCount = eliteCount;
-		this.mutationChance = mutationChance;
-		this.mutationRate = mutationRate;
-	}
+    private static int newNeuronToAddQuantity;
+    private static int randomLayer = 0;
+    private static List<NeuronLayer> neuronLayers;
 
-    public Genome[] GetRandomGenomes(int count, int genesCount)
+
+    public static Genome[] GetRandomGenomes(int count, int genesCount)
     {
         Genome[] genomes = new Genome[count];
 
@@ -59,115 +89,146 @@ public class GeneticAlgorithm
         return genomes;
     }
 
+    public static float RandomRangeFloat(float min, float max)
+    {
+        return (float)(random.NextDouble() * (max - min) + min);
+    }
 
-	public Genome[] Epoch(Genome[] oldGenomes)
-	{
-		totalFitness = 0;
+    public static Genome[] Epoch(Genome[] oldGenomes, GeneticAlgorithmData data)
+    {
+        float currentTotalFitness = 0;
 
-		population.Clear();
-		newPopulation.Clear();
+        population.Clear();
+        newPopulation.Clear();
 
-		population.AddRange(oldGenomes);
-		population.Sort(HandleComparison);
+        population.AddRange(oldGenomes);
+        population.Sort(HandleComparison);
 
-		foreach (Genome g in population)
-		{
-			totalFitness += g.fitness;
-		}
+        GeneticAlgorithmData backUpData = new GeneticAlgorithmData(data);
+        foreach (Genome g in population)
+        {
+            currentTotalFitness += g.fitness;
+        }
 
-		SelectElite();
+        
+        if (currentTotalFitness < data.totalFitness)
+        {
+            data.generationStalled++;
+            if (data.generationStalled >= data.maxStalledGenerationsUntilEvolve)
+            {
+                data.generationStalled = 0;
+            }
+        }
 
-		while (newPopulation.Count < population.Count)
-		{
-			Crossover();
-		}
+        data.totalFitness = currentTotalFitness;
+        CalculateNeuronsToAdd(data.brainStructure);
 
-		return newPopulation.ToArray();
-	}
 
-	void SelectElite()
-	{
-		for (int i = 0; i < eliteCount && newPopulation.Count < population.Count; i++)
-		{
-			newPopulation.Add(population[i]);
-		}
-	}
+        SelectElite(data.eliteCount);
+        while (newPopulation.Count < population.Count)
+        {
+            Crossover(data);
+        }
+        
+        data.mutationChance = backUpData.mutationChance;
+        data.mutationRate = backUpData.mutationRate;
+        return newPopulation.ToArray();
+    }
 
-	void Crossover()
-	{
-		Genome mom = RouletteSelection();
-		Genome dad = RouletteSelection();
+    private static void CalculateNeuronsToAdd(NeuralNetwork brain)
+    {
+        Random random = new Random();
+        newNeuronToAddQuantity = random.Next(1, 3);
+        randomLayer = random.Next(1, brain.layers.Count - 1);
+        neuronLayers = brain.layers;
+    }
 
-		Genome child1;
-		Genome child2;
 
-		Crossover(mom, dad, out child1, out child2);
+    static void SelectElite(int eliteCount)
+    {
+        for (int i = 0; i < eliteCount && newPopulation.Count < population.Count; i++)
+        {
+            newPopulation.Add(population[i]);
+        }
+    }
 
-		newPopulation.Add(child1);
-		newPopulation.Add(child2);
-	}
+    static void Crossover(GeneticAlgorithmData data)
+    {
+        Genome mom = RouletteSelection(data.totalFitness);
+        Genome dad = RouletteSelection(data.totalFitness);
 
-	void Crossover(Genome mom, Genome dad, out Genome child1, out Genome child2)
-	{
-		child1 = new Genome();
-		child2 = new Genome();
+        Genome child1;
+        Genome child2;
 
-		child1.genome = new float[mom.genome.Length];
-		child2.genome = new float[mom.genome.Length];
+        Crossover(data, mom, dad, out child1, out child2);
 
-		int pivot = Random.Range(0, mom.genome.Length);
+        newPopulation.Add(child1);
+        newPopulation.Add(child2);
+    }
 
-		for (int i = 0; i < pivot; i++)
-		{
-			child1.genome[i] = mom.genome[i];
+    static void Crossover(GeneticAlgorithmData data, Genome mom, Genome dad,
+        out Genome child1,
+        out Genome child2)
+    {
+        child1 = new Genome();
+        child2 = new Genome();
 
-			if (ShouldMutate())
-				child1.genome[i] += Random.Range(-mutationRate, mutationRate);
+        child1.genome = new float[mom.genome.Length];
+        child2.genome = new float[mom.genome.Length];
 
-			child2.genome[i] = dad.genome[i];
+        int pivot = random.Next(0, mom.genome.Length);
 
-			if (ShouldMutate())
-				child2.genome[i] += Random.Range(-mutationRate, mutationRate);
-		}
+        for (int i = 0; i < pivot; i++)
+        {
+            child1.genome[i] = mom.genome[i];
 
-		for (int i = pivot; i < mom.genome.Length; i++)
-		{
-			child2.genome[i] = mom.genome[i];
+            if (ShouldMutate(data.mutationChance))
+                child1.genome[i] += RandomRangeFloat(-data.mutationRate, data.mutationRate);
 
-			if (ShouldMutate())
-				child2.genome[i] += Random.Range(-mutationRate, mutationRate);
-			
-			child1.genome[i] = dad.genome[i];
+            child2.genome[i] = dad.genome[i];
 
-			if (ShouldMutate())
-				child1.genome[i] += Random.Range(-mutationRate, mutationRate);
-		}
-	}
+            if (ShouldMutate(data.mutationChance))
+                child2.genome[i] += RandomRangeFloat(-data.mutationRate, data.mutationRate);
+        }
 
-	bool ShouldMutate()
-	{
-		return Random.Range(0.0f, 1.0f) < mutationChance;
-	}
 
-	int HandleComparison(Genome x, Genome y)
-	{
-		return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
-	}
+        for (int i = pivot; i < mom.genome.Length; i++)
+        {
+            child2.genome[i] = mom.genome[i];
 
-	public Genome RouletteSelection()
-	{
-		float rnd = Random.Range(0, Mathf.Max(totalFitness, 0));
+            if (ShouldMutate(data.mutationChance))
+                child2.genome[i] += RandomRangeFloat(-data.mutationRate, data.mutationRate);
 
-		float fitness = 0;
+            child1.genome[i] = dad.genome[i];
 
-		for (int i = 0; i < population.Count; i++)
-		{
-			fitness += Mathf.Max(population[i].fitness, 0);
-			if (fitness >= rnd)
-				return population[i];
-		}
+            if (ShouldMutate(data.mutationChance))
+                child1.genome[i] += RandomRangeFloat(-data.mutationRate, data.mutationRate);
+        }
+    }
 
-		return null;
-	}
+    static bool ShouldMutate(float mutationChance)
+    {
+        return RandomRangeFloat(0.0f, 1.0f) < mutationChance;
+    }
 
+    static int HandleComparison(Genome x, Genome y)
+    {
+        return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
+    }
+
+    public static Genome RouletteSelection(float totalFitness)
+    {
+        float rnd = RandomRangeFloat(0, MathF.Max(totalFitness, 0));
+
+        float fitness = 0;
+
+        for (int i = 0; i < population.Count; i++)
+        {
+            fitness += MathF.Max(population[i].fitness, 0);
+            if (fitness >= rnd)
+                return population[i];
+        }
+
+        return null;
+    }
 }
