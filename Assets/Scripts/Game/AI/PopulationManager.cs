@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using NeuralNet.Components;
+using NeuralNet.Network;
 
 public partial class PopulationManager : MonoBehaviour
 {

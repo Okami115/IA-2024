@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using NeuralNet.Components;
+using NeuralNet.Network;
 
 public class TankBase : MonoBehaviour
 {

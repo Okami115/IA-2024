@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using NeuralNet.Components;
+using NeuralNet.Network;
+using UnityEngine;
 
 public class BirdBase : MonoBehaviour
 {

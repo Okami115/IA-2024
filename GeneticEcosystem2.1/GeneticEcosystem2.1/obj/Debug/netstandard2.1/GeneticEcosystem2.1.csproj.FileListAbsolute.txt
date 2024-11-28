@@ -1,0 +1,9 @@
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\bin\Debug\netstandard2.1\GeneticEcosystem2.1.deps.json
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\bin\Debug\netstandard2.1\GeneticEcosystem2.1.dll
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\bin\Debug\netstandard2.1\GeneticEcosystem2.1.pdb
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\obj\Debug\netstandard2.1\GeneticEcosystem2.1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\obj\Debug\netstandard2.1\GeneticEcosystem2.1.AssemblyInfoInputs.cache
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\obj\Debug\netstandard2.1\GeneticEcosystem2.1.AssemblyInfo.cs
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\obj\Debug\netstandard2.1\GeneticEcosystem2.1.csproj.CoreCompileInputs.cache
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\obj\Debug\netstandard2.1\GeneticEcosystem2.1.dll
+C:\Users\tomas\source\repos\GeneticEcosystem2.1\GeneticEcosystem2.1\obj\Debug\netstandard2.1\GeneticEcosystem2.1.pdb
